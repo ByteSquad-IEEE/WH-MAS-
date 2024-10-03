@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   loginButton: {
     backgroundColor: '#fff',
     paddingVertical: 12,  
-    width: '85%',
+    width: '100%',
     borderRadius: 25,
     marginBottom: 15,
     alignSelf: 'center',
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     borderColor: '#fff',  
     borderWidth: 2, 
     paddingVertical: 12, 
-    width: '85%', 
+    width: '100%', 
     borderRadius: 25,
     alignSelf: 'center',
   },

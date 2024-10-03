@@ -1,6 +1,24 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Animated } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import { Picker } from "@react-native-picker/picker";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Animated,
+  ImageBackground,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+
+import {
+  Poppins_400Regular,
+  Poppins_700Bold,
+  useFonts,
+} from "@expo-google-fonts/poppins";
+import * as SplashScreen from "expo-splash-screen";
+
+SplashScreen.preventAutoHideAsync();
 
 const FloatingLabelInput = ({ label, value, onChangeText, keyboardType }) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -8,34 +26,32 @@ const FloatingLabelInput = ({ label, value, onChangeText, keyboardType }) => {
 
   useEffect(() => {
     Animated.timing(animatedLabel, {
-      toValue: (isFocused || value) ? 1 : 0,
+      toValue: isFocused || value ? 1 : 0,
       duration: 200,
       useNativeDriver: false,
     }).start();
   }, [isFocused, value]);
 
   const labelStyle = {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     top: animatedLabel.interpolate({
       inputRange: [0, 1],
-      outputRange: [20, 0],  
+      outputRange: [20, 0],
     }),
     fontSize: animatedLabel.interpolate({
       inputRange: [0, 1],
-      outputRange: [16, 12],  
+      outputRange: [16, 12],
     }),
     color: animatedLabel.interpolate({
       inputRange: [0, 1],
-      outputRange: ['#aaa', '#000'],  
+      outputRange: ["#aaa", "#000"],
     }),
   };
 
   return (
     <View style={{ paddingTop: 18 }}>
-      <Animated.Text style={labelStyle}>
-        {label}
-      </Animated.Text>
+      <Animated.Text style={labelStyle}>{label}</Animated.Text>
       <TextInput
         value={value}
         style={styles.input}
@@ -43,8 +59,8 @@ const FloatingLabelInput = ({ label, value, onChangeText, keyboardType }) => {
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         keyboardType={keyboardType}
-        placeholder={isFocused ? '' : label}  
-        placeholderTextColor="#aaa"  
+        placeholder={isFocused ? "" : label}
+        placeholderTextColor="#aaa"
       />
     </View>
   );
@@ -52,20 +68,32 @@ const FloatingLabelInput = ({ label, value, onChangeText, keyboardType }) => {
 
 const RegisterScreen = () => {
   const [selectedRole, setSelectedRole] = useState("");
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [state, setState] = useState('');
-  const [city, setCity] = useState('');
-  const [address, setAddress] = useState('');
-  const [phone, setPhone] = useState('');
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [state, setState] = useState("");
+  const [city, setCity] = useState("");
+  const [address, setAddress] = useState("");
+  const [phone, setPhone] = useState("");
+
+  let [fontsLoaded] = useFonts({
+    Poppins_400Regular,
+    Poppins_700Bold,
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.header}>
+      <ImageBackground
+        source={require("../assets/authBgPatternImg.png")}
+        style={styles.header}
+      >
         <Text style={styles.headerText}>Register</Text>
         <Text style={styles.subHeaderText}>Create your WHMAS account.</Text>
-      </View>
+      </ImageBackground>
 
       <View style={styles.form}>
         <View style={styles.inputRow}>
@@ -138,7 +166,9 @@ const RegisterScreen = () => {
           <Text style={styles.buttonText}>Next</Text>
         </TouchableOpacity>
 
-        <Text style={styles.footerText}>Already have an account? <Text style={styles.linkText}>Sign In</Text></Text>
+        <Text style={styles.footerText}>
+          Already have an account? <Text style={styles.linkText}>Sign In</Text>
+        </Text>
       </View>
     </ScrollView>
   );
@@ -147,43 +177,50 @@ const RegisterScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   header: {
-    backgroundColor: '#00C853',
     paddingVertical: 50,
     paddingHorizontal: 20,
-    alignItems: 'flex-start',
+    alignItems: "flex-start",
+    height: 255,
   },
   headerText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 30,
-    fontWeight: 'bold',
+    fontFamily: "Poppins_700Bold",
   },
   subHeaderText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
     marginTop: 10,
+    fontFamily: "Poppins_400Regular",
   },
   form: {
-    marginTop: -40,
-    backgroundColor: '#fff',
-    borderRadius: 30,
+    marginTop: -100,
+    backgroundColor: "#fff",
+    borderRadius: 20,
     padding: 20,
     marginHorizontal: 20,
     elevation: 5,
-    width: '90%',
+    width: "90%",
   },
   input: {
     borderBottomWidth: 1,
-    borderBottomColor: '#000',
+    borderBottomColor: "#000",
     padding: 10,
     marginBottom: 15,
     fontSize: 16,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
+    fontFamily: "Poppins_400Regular",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontFamily: "Poppins_700Bold",
   },
   inputRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   halfInput: {
     flex: 1,
@@ -191,33 +228,33 @@ const styles = StyleSheet.create({
   },
   pickerContainer: {
     borderBottomWidth: 1,
-    borderBottomColor: '#000',
+    borderBottomColor: "#000",
     marginBottom: 15,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   picker: {
     height: 50,
-    width: '100%',
+    width: "100%",
   },
   button: {
-    backgroundColor: '#00C853',
+    backgroundColor: "#00C853",
     paddingVertical: 12,
     borderRadius: 25,
-    alignItems: 'center',
+    alignItems: "center",
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   footerText: {
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 20,
     fontSize: 14,
   },
   linkText: {
-    color: '#00C853',
-    fontWeight: 'bold',
+    color: "#00C853",
+    fontWeight: "bold",
   },
 });
 
