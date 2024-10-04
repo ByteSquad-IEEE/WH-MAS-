@@ -1,5 +1,5 @@
 import { Picker } from "@react-native-picker/picker";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import {
   Animated,
   ImageBackground,
@@ -10,6 +10,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 
 import {
   Poppins_400Regular,
@@ -18,7 +20,7 @@ import {
 } from "@expo-google-fonts/poppins";
 import * as SplashScreen from "expo-splash-screen";
 
-SplashScreen.preventAutoHideAsync();
+// SplashScreen.preventAutoHideAsync();
 
 const FloatingLabelInput = ({ label, value, onChangeText, keyboardType }) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -67,6 +69,7 @@ const FloatingLabelInput = ({ label, value, onChangeText, keyboardType }) => {
 };
 
 const RegisterScreen = () => {
+  const navigation = useNavigation();
   const [selectedRole, setSelectedRole] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -76,21 +79,36 @@ const RegisterScreen = () => {
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
 
-  let [fontsLoaded] = useFonts({
-    Poppins_400Regular,
-    Poppins_700Bold,
-  });
+    let [fontsLoaded] = useFonts({
+      Poppins_400Regular,
+      Poppins_700Bold,
+    });
 
-  if (!fontsLoaded) {
-    return null;
-  }
+    const onLayoutRootView = useCallback(async () => {
+      if (fontsLoaded) {
+        await SplashScreen.hideAsync();
+      }
+    }, [fontsLoaded]);
+
+    if (!fontsLoaded) {
+      return null;
+    }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      onLayout={onLayoutRootView}
+    >
       <ImageBackground
         source={require("../assets/authBgPatternImg.png")}
         style={styles.header}
       >
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="arrow-back" size={30} color="white" />
+        </TouchableOpacity>
         <Text style={styles.headerText}>Register</Text>
         <Text style={styles.subHeaderText}>Create your WHMAS account.</Text>
       </ImageBackground>
@@ -156,9 +174,21 @@ const RegisterScreen = () => {
             onValueChange={(itemValue) => setSelectedRole(itemValue)}
             style={styles.picker}
           >
-            <Picker.Item label="Select Role" value="" />
-            <Picker.Item label="Waste Buyer" value="Buyer" />
-            <Picker.Item label="Waste Seller" value="Seller" />
+            <Picker.Item
+              label="Select Role"
+              value=""
+              style={{ fontFamily: "Poppins_400Regular" }}
+            />
+            <Picker.Item
+              label="Waste Buyer"
+              value="Buyer"
+              style={{ fontFamily: "Poppins_400Regular" }}
+            />
+            <Picker.Item
+              label="Waste Seller"
+              value="Seller"
+              style={{ fontFamily: "Poppins_400Regular" }}
+            />
           </Picker>
         </View>
 
@@ -179,6 +209,19 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: "#fff",
   },
+  backButton: {
+    marginBottom: 10,
+    display: "flex",
+    backgroundColor: "green",
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    borderRadius: 999
+  },
+  backButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontFamily: "Poppins_400Regular",
+  },
   header: {
     paddingVertical: 50,
     paddingHorizontal: 20,
@@ -197,7 +240,7 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_400Regular",
   },
   form: {
-    marginTop: -100,
+    marginTop: -50,
     backgroundColor: "#fff",
     borderRadius: 20,
     padding: 20,
@@ -235,6 +278,10 @@ const styles = StyleSheet.create({
   picker: {
     height: 50,
     width: "100%",
+    fontFamily: "Poppins_400Regular",
+  },
+  pickerItem: {
+    fontFamily: "Poppins_400Regular",
   },
   button: {
     backgroundColor: "#00C853",
@@ -246,11 +293,13 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
+    fontFamily: "Poppins_400Regular",
   },
   footerText: {
     textAlign: "center",
     marginTop: 20,
     fontSize: 14,
+    fontFamily: "Poppins_400Regular",
   },
   linkText: {
     color: "#00C853",
