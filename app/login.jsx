@@ -1,5 +1,7 @@
+import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import { useNavigation } from "@react-navigation/native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Animated,
   ImageBackground,
@@ -10,8 +12,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
 
 import {
   Poppins_400Regular,
@@ -68,31 +68,25 @@ const FloatingLabelInput = ({ label, value, onChangeText, keyboardType }) => {
   );
 };
 
-const RegisterScreen = () => {
+const LoginScreen = () => {
   const navigation = useNavigation();
-  const [selectedRole, setSelectedRole] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [state, setState] = useState("");
-  const [city, setCity] = useState("");
-  const [address, setAddress] = useState("");
-  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
 
-    let [fontsLoaded] = useFonts({
-      Poppins_400Regular,
-      Poppins_700Bold,
-    });
+  let [fontsLoaded] = useFonts({
+    Poppins_400Regular,
+    Poppins_700Bold,
+  });
 
-    const onLayoutRootView = useCallback(async () => {
-      if (fontsLoaded) {
-        await SplashScreen.hideAsync();
-      }
-    }, [fontsLoaded]);
-
-    if (!fontsLoaded) {
-      return null;
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
     }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
 
   return (
     <ScrollView
@@ -109,28 +103,13 @@ const RegisterScreen = () => {
         >
           <Ionicons name="arrow-back" size={30} color="white" />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Register</Text>
-        <Text style={styles.subHeaderText}>Create your WHMAS account.</Text>
+        <Text style={styles.headerText}>Login</Text>
+        <Text style={styles.subHeaderText}>
+          Welcome Back, Login to access your account
+        </Text>
       </ImageBackground>
 
       <View style={styles.form}>
-        <View style={styles.inputRow}>
-          <View style={styles.halfInput}>
-            <FloatingLabelInput
-              label="First name"
-              value={firstName}
-              onChangeText={setFirstName}
-            />
-          </View>
-          <View style={styles.halfInput}>
-            <FloatingLabelInput
-              label="Last name"
-              value={lastName}
-              onChangeText={setLastName}
-            />
-          </View>
-        </View>
-
         <FloatingLabelInput
           label="Email"
           value={email}
@@ -138,71 +117,24 @@ const RegisterScreen = () => {
           keyboardType="email-address"
         />
 
-        <View style={styles.inputRow}>
-          <View style={styles.halfInput}>
-            <FloatingLabelInput
-              label="State"
-              value={state}
-              onChangeText={setState}
-            />
-          </View>
-          <View style={styles.halfInput}>
-            <FloatingLabelInput
-              label="City"
-              value={city}
-              onChangeText={setCity}
-            />
-          </View>
-        </View>
-
         <FloatingLabelInput
-          label="Address"
-          value={address}
-          onChangeText={setAddress}
+          label="Password"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="password"
         />
-
-        <FloatingLabelInput
-          label="Phone"
-          value={phone}
-          onChangeText={setPhone}
-          keyboardType="phone-pad"
-        />
-
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={selectedRole}
-            onValueChange={(itemValue) => setSelectedRole(itemValue)}
-            style={styles.picker}
-          >
-            <Picker.Item
-              label="Select Role"
-              value=""
-              style={{ fontFamily: "Poppins_400Regular" }}
-            />
-            <Picker.Item
-              label="Waste Buyer"
-              value="Buyer"
-              style={{ fontFamily: "Poppins_400Regular" }}
-            />
-            <Picker.Item
-              label="Waste Seller"
-              value="Seller"
-              style={{ fontFamily: "Poppins_400Regular" }}
-            />
-          </Picker>
-        </View>
 
         <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText}>Next</Text>
         </TouchableOpacity>
 
         <Text style={styles.footerText}>
-          Already have an account?{" "}
+          Don't have an account?{" "}
           <Text
             style={styles.linkText}
-            onPress={() => navigation.navigate("login")}
+            onPress={() => navigation.navigate("register")}
           >
-            Sign In
+            Register
           </Text>
         </Text>
       </View>
@@ -229,10 +161,10 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_400Regular",
   },
   header: {
-    paddingVertical: 50,
+    paddingVertical: 60,
     paddingHorizontal: 20,
     alignItems: "flex-start",
-    height: 255,
+    height: 290,
   },
   headerText: {
     color: "#fff",
@@ -246,13 +178,15 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_400Regular",
   },
   form: {
-    marginTop: -50,
+    marginTop: -45,
     backgroundColor: "#fff",
     borderRadius: 20,
     padding: 20,
     marginHorizontal: 20,
     elevation: 5,
     width: "90%",
+    display: "flex",
+    gap: 10,
   },
   input: {
     borderBottomWidth: 1,
@@ -266,7 +200,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontSize: 18,
-    fontFamily: "Poppins_700Bold",
+    fontFamily: "Poppins_400Regular",
   },
   inputRow: {
     flexDirection: "row",
@@ -294,6 +228,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 25,
     alignItems: "center",
+    fontFamily: "Poppins_400Regular",
   },
   buttonText: {
     color: "#fff",
@@ -313,4 +248,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RegisterScreen;
+export default LoginScreen;
