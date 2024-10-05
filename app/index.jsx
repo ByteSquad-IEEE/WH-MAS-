@@ -15,6 +15,15 @@ import {
 } from "@expo-google-fonts/poppins";
 import * as SplashScreen from "expo-splash-screen";
 
+// Skipp - React Native Auth0 integration
+import Auth0 from 'react-native-auth0';
+
+const auth0 = new Auth0({
+  domain: 'dev-b5g4d5rsurrmubie.us.auth0.com',
+  clientId: 'cUB1ixYLTVpKsVMVmIbh3U1TNBOPGqcO',
+});
+
+
 // SplashScreen.preventAutoHideAsync();
 
 const Start = () => {
