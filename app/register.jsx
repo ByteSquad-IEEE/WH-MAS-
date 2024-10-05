@@ -1,5 +1,9 @@
+import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import axios from "axios"
+import Config from "react-native-config";
+import { useNavigation } from "@react-navigation/native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Animated,
   ImageBackground,
@@ -10,8 +14,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
 
 import {
   Poppins_400Regular,
@@ -19,8 +21,16 @@ import {
   useFonts,
 } from "@expo-google-fonts/poppins";
 import * as SplashScreen from "expo-splash-screen";
+import {
+  SelectList,
+} from "react-native-dropdown-select-list";
 
 // SplashScreen.preventAutoHideAsync();
+
+const data = [
+  { key: "1", value: "Waste Buyer" },
+  { key: "2", value: "Waste Seller" },
+];
 
 const FloatingLabelInput = ({ label, value, onChangeText, keyboardType }) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -70,7 +80,8 @@ const FloatingLabelInput = ({ label, value, onChangeText, keyboardType }) => {
 
 const RegisterScreen = () => {
   const navigation = useNavigation();
-  const [selectedRole, setSelectedRole] = useState("");
+  const [selected, setSelected] = useState([]);
+  // const [selectedRole, setSelectedRole] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -79,20 +90,26 @@ const RegisterScreen = () => {
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
 
-    let [fontsLoaded] = useFonts({
-      Poppins_400Regular,
-      Poppins_700Bold,
-    });
+  let [fontsLoaded] = useFonts({
+    Poppins_400Regular,
+    Poppins_700Bold,
+  });
 
-    const onLayoutRootView = useCallback(async () => {
-      if (fontsLoaded) {
-        await SplashScreen.hideAsync();
-      }
-    }, [fontsLoaded]);
-
-    if (!fontsLoaded) {
-      return null;
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
     }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
+  const base_url = Config.API_BASE_URL
+
+  // const handleSubmit = async () => {
+  //   const response = await axios.post(`${base_url}/wh-mas/api/register`);
+  // }
 
   return (
     <ScrollView
@@ -169,27 +186,14 @@ const RegisterScreen = () => {
         />
 
         <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={selectedRole}
-            onValueChange={(itemValue) => setSelectedRole(itemValue)}
-            style={styles.picker}
-          >
-            <Picker.Item
-              label="Select Role"
-              value=""
-              style={{ fontFamily: "Poppins_400Regular" }}
-            />
-            <Picker.Item
-              label="Waste Buyer"
-              value="Buyer"
-              style={{ fontFamily: "Poppins_400Regular" }}
-            />
-            <Picker.Item
-              label="Waste Seller"
-              value="Seller"
-              style={{ fontFamily: "Poppins_400Regular" }}
-            />
-          </Picker>
+          <SelectList
+            setSelected={(val) => setSelected(val)}
+            data={data}
+            save="value"
+            search={false}
+            placeholder="Select Role"
+            fontFamily="Poppins_400Regular"
+          />
         </View>
 
         <TouchableOpacity style={styles.button}>
@@ -276,8 +280,7 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   pickerContainer: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#727272",
+    marginTop: 5,
     marginBottom: 15,
     backgroundColor: "#fff",
   },
