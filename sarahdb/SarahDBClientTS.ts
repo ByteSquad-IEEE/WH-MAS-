@@ -5,31 +5,40 @@ import { retTr } from './__trash';
  * Decrypts and retrieves the connection key.
  * @constant {string}
  */
-const CON_KEY = decrypt(decrypt(decrypt(decrypt(retTr()))));
+const CON_KEY: string = decrypt(decrypt(decrypt(decrypt(retTr()))));
 console.log(CON_KEY);
 
 /**
  * Base URL for the database server.
  * @constant {string}
  */
-const from = "https://sarahdb.pythonanywhere.com";
+const from: string = "https://sarahdb.pythonanywhere.com";
 
 /**
  * Prefix for all API endpoints.
  * @constant {string}
  */
-const link_prefix = `${from}/${CON_KEY}/handler`;
+const link_prefix: string = `${from}/${CON_KEY}/handler`;
 
 /**
  * URL for database login.
  * @constant {string}
  */
-const DB_URL = `${from}/login/${CON_KEY}`;
+const DB_URL: string = `${from}/login/${CON_KEY}`;
+
+/**
+ * Interface for column-value pairs
+ */
+interface ColumnValuePairs {
+  [key: string]: string | number | boolean;
+}
 
 /**
  * Database ORM class for handling database operations.
  */
 class DbORM {
+  private database: Record<string, any>;
+
   /**
    * Creates an instance of DbORM.
    */
@@ -42,7 +51,7 @@ class DbORM {
    * @async
    * @returns {Promise<void>}
    */
-  async connect() {
+  async connect(): Promise<void> {
     try {
       const response = await fetch(DB_URL);
       if (response.ok) {
@@ -62,7 +71,7 @@ class DbORM {
    * @param {string} url - The URL to send the request to.
    * @returns {Promise<string>} The response text.
    */
-  async requestThenText(url) {
+  private async requestThenText(url: string): Promise<string> {
     const response = await fetch(url);
     return response.text();
   }
@@ -74,7 +83,7 @@ class DbORM {
    * @param {Object} data - The data to send in the request body.
    * @returns {Promise<string>} The response text.
    */
-  async requestThenTextPost(url, data) {
+  private async requestThenTextPost(url: string, data: Record<string, any>): Promise<string> {
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -88,9 +97,9 @@ class DbORM {
   /**
    * Retrieves all data from the database.
    * @async
-   * @returns {Promise<Object>} All database data.
+   * @returns {Promise<Record<string, any>>} All database data.
    */
-  async all() {
+  async all(): Promise<Record<string, any>> {
     return JSON.parse(await this.requestThenText(`${link_prefix}/handler`));
   }
 
@@ -98,9 +107,9 @@ class DbORM {
    * Retrieves all entries for a specific model.
    * @async
    * @param {string} model - The model name.
-   * @returns {Promise<Object>} All entries for the specified model.
+   * @returns {Promise<Record<string, any>>} All entries for the specified model.
    */
-  async getAll(model) {
+  async getAll(model: string): Promise<Record<string, any>> {
     return JSON.parse(await this.requestThenText(`${link_prefix}/get_all/${model}`));
   }
 
@@ -110,9 +119,9 @@ class DbORM {
    * @param {string} model - The model name.
    * @param {string} column - The column name.
    * @param {string} value - The value to match.
-   * @returns {Promise<Object>} Matching entries.
+   * @returns {Promise<Record<string, any>>} Matching entries.
    */
-  async findAll(model, column, value) {
+  async findAll(model: string, column: string, value: string): Promise<Record<string, any>> {
     return JSON.parse(await this.requestThenText(`${link_prefix}/find_all/${model}/${column}/${value}`));
   }
 
@@ -122,9 +131,9 @@ class DbORM {
    * @param {string} model - The model name.
    * @param {string} column - The column name.
    * @param {string} value - The value to add.
-   * @returns {Promise<Object>} Result of the operation.
+   * @returns {Promise<Record<string, any>>} Result of the operation.
    */
-  async addOne(model, column, value) {
+  async addOne(model: string, column: string, value: string): Promise<Record<string, any>> {
     return JSON.parse(await this.requestThenText(`${link_prefix}/add_one/${model}/${column}/${value}`));
   }
 
@@ -132,10 +141,10 @@ class DbORM {
    * Adds a new entry to a model with multiple column-value pairs.
    * @async
    * @param {string} model - The model name.
-   * @param {Object} columnValuePairs - Object containing column-value pairs.
-   * @returns {Promise<Object>} Result of the operation.
+   * @param {ColumnValuePairs} columnValuePairs - Object containing column-value pairs.
+   * @returns {Promise<Record<string, any>>} Result of the operation.
    */
-  async addEntry(model, columnValuePairs) {
+  async addEntry(model: string, columnValuePairs: ColumnValuePairs): Promise<Record<string, any>> {
     try {
       const data = {
         model: model,
@@ -144,6 +153,7 @@ class DbORM {
       return JSON.parse(await this.requestThenTextPost(`${link_prefix}/add_entry`, data));
     } catch (error) {
       console.error(`Error in addEntry: ${error}\nmodel: ${model}\ncvp: ${JSON.stringify(columnValuePairs)}`);
+      throw error;
     }
   }
 
@@ -153,9 +163,9 @@ class DbORM {
    * @param {string} model - The model name.
    * @param {string} column - The column name.
    * @param {string} value - The value to match.
-   * @returns {Promise<Object>} The matching entry.
+   * @returns {Promise<Record<string, any>>} The matching entry.
    */
-  async findOne(model, column, value) {
+  async findOne(model: string, column: string, value: string): Promise<Record<string, any>> {
     return JSON.parse(await this.requestThenText(`${link_prefix}/find_one/${model}/${column}/${value}`));
   }
 
@@ -166,9 +176,9 @@ class DbORM {
    * @param {string} column - The column name to search.
    * @param {string} valueSearch - The value to search for.
    * @param {string} valueUpdate - The new value to set.
-   * @returns {Promise<Object>} Result of the operation.
+   * @returns {Promise<Record<string, any>>} Result of the operation.
    */
-  async updateOne(model, column, valueSearch, valueUpdate) {
+  async updateOne(model: string, column: string, valueSearch: string, valueUpdate: string): Promise<Record<string, any>> {
     return JSON.parse(await this.requestThenText(`${link_prefix}/update_one/${model}/${column}/${valueSearch}/${valueUpdate}`));
   }
 
@@ -177,11 +187,11 @@ class DbORM {
    * @async
    * @param {string} model - The model name.
    * @param {string} column - The column name to search.
-   * @param {Object} columnValuePairs - Object containing column-value pairs to update.
+   * @param {ColumnValuePairs} columnValuePairs - Object containing column-value pairs to update.
    * @param {boolean} dnd - Flag for using a different endpoint.
-   * @returns {Promise<Object>} Result of the operation.
+   * @returns {Promise<Record<string, any>>} Result of the operation.
    */
-  async updateEntry(model, column, columnValuePairs, dnd) {
+  async updateEntry(model: string, column: string, columnValuePairs: ColumnValuePairs, dnd: boolean): Promise<Record<string, any>> {
     if (dnd) {
       const data = {
         model: model,
@@ -199,9 +209,9 @@ class DbORM {
    * @async
    * @param {string} model - The model name.
    * @param {string} column - The column name to identify the entry.
-   * @returns {Promise<Object>} Result of the operation.
+   * @returns {Promise<Record<string, any>>} Result of the operation.
    */
-  async deleteEntry(model, column) {
+  async deleteEntry(model: string, column: string): Promise<Record<string, any>> {
     return JSON.parse(await this.requestThenText(`${link_prefix}/delete_entry/${model}/${column}`));
   }
 
@@ -210,7 +220,7 @@ class DbORM {
    * @param {string} string - The string to sanitize.
    * @returns {string} The sanitized string.
    */
-  sanitizeString(string) {
+  sanitizeString(string: string): string {
     return string.replace(/['"/\\]/g, '');
   }
 
@@ -218,9 +228,9 @@ class DbORM {
    * Retrieves base64 encoded media by its ID.
    * @async
    * @param {string} mediaID - The ID of the media to retrieve.
-   * @returns {Promise<string|null>} The base64 encoded media or null if not found.
+   * @returns {Promise<string | null>} The base64 encoded media or null if not found.
    */
-  async getBase64Media(mediaID) {
+  async getBase64Media(mediaID: string): Promise<string | null> {
     const result = await this.findOne('base64_images', 'id', mediaID);
     if (result.status[0] === "not found") {
       return null;
