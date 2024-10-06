@@ -1,10 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Picker } from "@react-native-picker/picker";
-import axios from "axios"
-import Config from "react-native-config";
-import { useNavigation } from "@react-navigation/native";
+// import { useNavigation } from "@react-navigation/native";
+import axios from "axios";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Animated,
   ImageBackground,
   ScrollView,
@@ -14,16 +13,17 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Config from "react-native-config";
 
 import {
   Poppins_400Regular,
   Poppins_700Bold,
   useFonts,
 } from "@expo-google-fonts/poppins";
+import { useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import {
-  SelectList,
-} from "react-native-dropdown-select-list";
+import { SelectList } from "react-native-dropdown-select-list";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 // SplashScreen.preventAutoHideAsync();
 
@@ -79,7 +79,8 @@ const FloatingLabelInput = ({ label, value, onChangeText, keyboardType }) => {
 };
 
 const RegisterScreen = () => {
-  const navigation = useNavigation();
+  const router = useRouter();
+  // const navigation = useNavigation();
   const [selected, setSelected] = useState([]);
   // const [selectedRole, setSelectedRole] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -105,112 +106,177 @@ const RegisterScreen = () => {
     return null;
   }
 
-  const base_url = Config.API_BASE_URL
+  const base_url = "https://whmas-admin.vercel.app";
+  // console.log("Base URL:", base_url);
+
+  // Inside RegisterScreen
+  const handleNext = () => {
+    if (
+      !firstName ||
+      !lastName ||
+      !email ||
+      !state ||
+      !city ||
+      !address ||
+      !phone ||
+      !selected
+    ) {
+      Alert.alert("Error", "Please fill in all fields and select a role.");
+      return;
+    }
+
+    const userData = {
+      first_name: firstName,
+      last_name: lastName,
+      email,
+      state,
+      city,
+      address,
+      phone_number: phone,
+      user_role: selected,
+    };
+
+    router.push({
+      pathname: "/registerPassword",
+      params: userData,
+    });
+  };
 
   // const handleSubmit = async () => {
-  //   const response = await axios.post(`${base_url}/wh-mas/api/register`);
-  // }
+  //   if (
+  //     !firstName ||
+  //     !lastName ||
+  //     !email ||
+  //     !state ||
+  //     !city ||
+  //     !address ||
+  //     !phone ||
+  //     !selected
+  //   ) {
+  //     Alert.alert("Error", "Please fill in all fields and select a role.");
+  //     return;
+  //   }
+  //   try {
+  //     const response = await axios.post(`${base_url}/wh-mas/api/register`, {
+  //       first_name: firstName,
+  //       last_Name: lastName,
+  //       email,
+  //       state,
+  //       city,
+  //       address,
+  //       phone_number: phone,
+  //       user_role: selected,
+  //     });
+  //     const resData = response.data;
+  //     console.log(resData);
+  //   } catch (error) {
+  //     console.log("Failed to submit data:", error);
+  //     Alert.alert("Error", "Registration failed. Please try again.");
+  //   }
+  // };
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-      onLayout={onLayoutRootView}
-    >
-      <ImageBackground
-        source={require("../assets/authBgPatternImg.png")}
-        style={styles.header}
+    <SafeAreaView>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        onLayout={onLayoutRootView}
       >
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
+        <ImageBackground
+          source={require("../assets/authBgPatternImg.png")}
+          style={styles.header}
         >
-          <Ionicons name="arrow-back" size={30} color="white" />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>Register</Text>
-        <Text style={styles.subHeaderText}>Create your WHMAS account.</Text>
-      </ImageBackground>
-
-      <View style={styles.form}>
-        <View style={styles.inputRow}>
-          <View style={styles.halfInput}>
-            <FloatingLabelInput
-              label="First name"
-              value={firstName}
-              onChangeText={setFirstName}
-            />
-          </View>
-          <View style={styles.halfInput}>
-            <FloatingLabelInput
-              label="Last name"
-              value={lastName}
-              onChangeText={setLastName}
-            />
-          </View>
-        </View>
-
-        <FloatingLabelInput
-          label="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-        />
-
-        <View style={styles.inputRow}>
-          <View style={styles.halfInput}>
-            <FloatingLabelInput
-              label="State"
-              value={state}
-              onChangeText={setState}
-            />
-          </View>
-          <View style={styles.halfInput}>
-            <FloatingLabelInput
-              label="City"
-              value={city}
-              onChangeText={setCity}
-            />
-          </View>
-        </View>
-
-        <FloatingLabelInput
-          label="Address"
-          value={address}
-          onChangeText={setAddress}
-        />
-
-        <FloatingLabelInput
-          label="Phone"
-          value={phone}
-          onChangeText={setPhone}
-          keyboardType="phone-pad"
-        />
-
-        <View style={styles.pickerContainer}>
-          <SelectList
-            setSelected={(val) => setSelected(val)}
-            data={data}
-            save="value"
-            search={false}
-            placeholder="Select Role"
-            fontFamily="Poppins_400Regular"
-          />
-        </View>
-
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Next</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.footerText}>
-          Already have an account?{" "}
-          <Text
-            style={styles.linkText}
-            onPress={() => navigation.navigate("login")}
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
           >
-            Sign In
+            <Ionicons name="arrow-back" size={30} color="white" />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>Register</Text>
+          <Text style={styles.subHeaderText}>Create your WHMAS account.</Text>
+        </ImageBackground>
+
+        <View style={styles.form}>
+          <View style={styles.inputRow}>
+            <View style={styles.halfInput}>
+              <FloatingLabelInput
+                label="First name"
+                value={firstName}
+                onChangeText={setFirstName}
+              />
+            </View>
+            <View style={styles.halfInput}>
+              <FloatingLabelInput
+                label="Last name"
+                value={lastName}
+                onChangeText={setLastName}
+              />
+            </View>
+          </View>
+
+          <FloatingLabelInput
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+          />
+
+          <View style={styles.inputRow}>
+            <View style={styles.halfInput}>
+              <FloatingLabelInput
+                label="State"
+                value={state}
+                onChangeText={setState}
+              />
+            </View>
+            <View style={styles.halfInput}>
+              <FloatingLabelInput
+                label="City"
+                value={city}
+                onChangeText={setCity}
+              />
+            </View>
+          </View>
+
+          <FloatingLabelInput
+            label="Address"
+            value={address}
+            onChangeText={setAddress}
+          />
+
+          <FloatingLabelInput
+            label="Phone"
+            value={phone}
+            onChangeText={setPhone}
+            keyboardType="phone-pad"
+          />
+
+          <View style={styles.pickerContainer}>
+            <SelectList
+              setSelected={(val) => setSelected(val)}
+              data={data}
+              save="value"
+              search={false}
+              placeholder="Select Role"
+              fontFamily="Poppins_400Regular"
+            />
+          </View>
+
+          <TouchableOpacity style={styles.button} onPress={handleNext}>
+            <Text style={styles.buttonText}>Next</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.footerText}>
+            Already have an account?{" "}
+            <Text
+              style={styles.linkText}
+              onPress={() => navigation.navigate("login")}
+            >
+              Sign In
+            </Text>
           </Text>
-        </Text>
-      </View>
-    </ScrollView>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

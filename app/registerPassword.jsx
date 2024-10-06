@@ -1,7 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+// import { useNavigation } from "@react-navigation/native";
+import axios from "axios";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Animated,
   ImageBackground,
   ScrollView,
@@ -17,8 +19,8 @@ import {
   Poppins_700Bold,
   useFonts,
 } from "@expo-google-fonts/poppins";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { router, useRouter } from "expo-router";
 
 // SplashScreen.preventAutoHideAsync();
 
@@ -68,11 +70,59 @@ const FloatingLabelInput = ({ label, value, onChangeText, keyboardType }) => {
   );
 };
 
-const LoginScreen = () => {
-  const router = useRouter()
-  const navigation = useNavigation();
-  const [email, setEmail] = useState("");
+const registerPassword = ({ route }) => {
+  const router = useRouter();
+  const params = useLocalSearchParams();
+  // const { userData } = route.params;
+  // const navigation = useNavigation();
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  // console.log(params)
+
+  const handleSubmit = async () => {
+    if (!password || !confirmPassword) {
+      Alert.alert("Error", "Please fill in all fields.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert("Error", "Passwords do not match.");
+      return;
+    }
+
+    const base_url = "https://whmas-admin.vercel.app";
+    console.log("Sending Data:", params, password, confirmPassword);
+
+    // const paramsData = {
+    //   ...params,
+    //   password,
+    //   confirmPassword,
+    // };
+    const formData = new FormData();
+    Object.keys(params).forEach((key) => {
+      formData.append(key, params[key]);
+    });
+    formData.append("password", password);
+    formData.append("confirm_password", confirmPassword);
+    try {
+      const response = await axios.post(
+        `${base_url}/wh-mas/api/register`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log("Registration successful:", response.data);
+      Alert.alert("Success", "Registration completed successfully!", [
+        { text: "OK", onPress: () => router.push("/login") },
+      ]);
+    } catch (error) {
+      console.error("Registration failed:", error.response);
+      Alert.alert("Error", "Registration failed. Please try again.");
+    }
+  };
 
   let [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -104,40 +154,30 @@ const LoginScreen = () => {
         >
           <Ionicons name="arrow-back" size={30} color="white" />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Login</Text>
-        <Text style={styles.subHeaderText}>
-          Welcome Back, Login to access your account
-        </Text>
+        <Text style={styles.headerText}>Register</Text>
+        <Text style={styles.subHeaderText}>Create your WHMAS account.</Text>
       </ImageBackground>
 
       <View style={styles.form}>
         <FloatingLabelInput
-          label="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
+          label="Create Password"
+          value={password}
+          onChangeText={setPassword}
+          keyboardType="password"
+          secureTextEntry={true}
         />
 
         <FloatingLabelInput
-          label="Password"
-          value={email}
-          onChangeText={setEmail}
+          label="Confirm Password"
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
           keyboardType="password"
+          secureTextEntry={true}
         />
 
-        <TouchableOpacity style={styles.button} onPress={() => router.push("/dashboard")}>
+        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
           <Text style={styles.buttonText}>Next</Text>
         </TouchableOpacity>
-
-        <Text style={styles.footerText}>
-          Don't have an account?{" "}
-          <Text
-            style={styles.linkText}
-            onPress={() => navigation.navigate("register")}
-          >
-            Register
-          </Text>
-        </Text>
       </View>
     </ScrollView>
   );
@@ -249,4 +289,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default registerPassword;
