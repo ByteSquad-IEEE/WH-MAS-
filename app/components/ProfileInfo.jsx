@@ -1,6 +1,7 @@
-import { View, Text, TouchableOpacity } from 'react-native'
-import React from 'react'
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
+import React from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import TopBarBtn from "./TopBarBtn";
 
 const ProfileInfo = () => {
   return (
@@ -17,16 +18,9 @@ const ProfileInfo = () => {
         </View>
       </View>
 
-      <View className="flex flex-row gap-2">
-        <TouchableOpacity className="bg-gray-100 w-[42px] h-[42px] rounded-full flex items-center justify-center">
-          <Ionicons name="notifications-outline" size={25} />
-        </TouchableOpacity>
-        <TouchableOpacity className="bg-gray-100 w-[42px] h-[42px] rounded-full flex items-center justify-center">
-          <Ionicons name="settings-outline" size={25} />
-        </TouchableOpacity>
-      </View>
+      <TopBarBtn isNotificationShown={true} />
     </View>
   );
-}
+};
 
-export default ProfileInfo
+export default ProfileInfo;

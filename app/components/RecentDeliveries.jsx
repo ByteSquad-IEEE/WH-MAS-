@@ -14,7 +14,7 @@ const RecentDeliveries = () => {
         className="pb-2"
       >
         <View className="flex items-center justify-center mt-3">
-          <DeliveryTruckImg width={100} height={100} className="" />
+          <DeliveryTruckImg width={100} height={100}  />
           <Text className="text-gray-400 font-medium text-center px-6">
             No Deliveries made yet! Buy or Sell waste to see your recent
             deliveries

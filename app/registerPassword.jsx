@@ -19,8 +19,10 @@ import {
   Poppins_700Bold,
   useFonts,
 } from "@expo-google-fonts/poppins";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 // SplashScreen.preventAutoHideAsync();
 
@@ -76,6 +78,15 @@ const RegisterPassword = ({ route }) => {
   const [password, setPassword] = useState("");
   const [confirm_password, setConfirmPassword] = useState("");
 
+  const saveEmailToStorage = async (email) => {
+    try {
+      await AsyncStorage.setItem("userEmail", email);
+      console.log("Email saved successfully");
+    } catch (error) {
+      console.error("Error saving email:", error);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!password || !confirm_password) {
       Alert.alert("Error", "Please fill in all fields.");
@@ -95,7 +106,7 @@ const RegisterPassword = ({ route }) => {
       password,
       confirm_password,
     };
-    console.log(paramsData)
+    console.log(paramsData);
     try {
       const response = await axios.post(
         `${base_url}/wh-mas/api/register`,
@@ -107,8 +118,9 @@ const RegisterPassword = ({ route }) => {
         }
       );
       console.log("Registration successful:", response.data);
+      await saveEmailToStorage(params.email);
       Alert.alert("Success", "Registration completed successfully!", [
-        { text: "OK", onPress: () => router.push("/login") },
+        { text: "OK", onPress: () => router.push("/verifyOtp") },
       ]);
     } catch (error) {
       console.error(
@@ -135,46 +147,48 @@ const RegisterPassword = ({ route }) => {
   }
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-      onLayout={onLayoutRootView}
-    >
-      <ImageBackground
-        source={require("../assets/authBgPatternImg.png")}
-        style={styles.header}
+    <SafeAreaView>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        onLayout={onLayoutRootView}
       >
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
+        <ImageBackground
+          source={require("../assets/authBgPatternImg.png")}
+          style={styles.header}
         >
-          <Ionicons name="arrow-back" size={30} color="white" />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>Register</Text>
-        <Text style={styles.subHeaderText}>Create your WHMAS account.</Text>
-      </ImageBackground>
-
-      <View style={styles.form}>
-        <FloatingLabelInput
-          label="Create Password"
-          value={password}
-          onChangeText={setPassword}
-          keyboardType="password"
-          secureTextEntry={true}
-        />
-
-        <FloatingLabelInput
-          label="Confirm Password"
-          value={confirm_password}
-          onChangeText={setConfirmPassword}
-          keyboardType="password"
-          secureTextEntry={true}
-        />
-
-        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-          <Text style={styles.buttonText}>Next</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Ionicons name="arrow-back" size={30} color="white" />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>Register</Text>
+          <Text style={styles.subHeaderText}>Create your WHMAS account.</Text>
+        </ImageBackground>
+  
+        <View style={styles.form}>
+          <FloatingLabelInput
+            label="Create Password"
+            value={password}
+            onChangeText={setPassword}
+            keyboardType="password"
+            secureTextEntry={true}
+          />
+  
+          <FloatingLabelInput
+            label="Confirm Password"
+            value={confirm_password}
+            onChangeText={setConfirmPassword}
+            keyboardType="password"
+            secureTextEntry={true}
+          />
+  
+          <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+            <Text style={styles.buttonText}>Next</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
