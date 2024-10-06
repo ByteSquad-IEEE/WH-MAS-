@@ -6,7 +6,7 @@ import { Text, View } from "react-native";
 const TabIcon = ({ icon, name, focused, color }) => {
   return (
     <View className="items-center justify-center gap-2 bg-[BBD1D8]">
-      <Ionicons name={icon} size={25} color={color} />
+      <Ionicons name={icon} size={30} color={color} />
       <Text
         className={`${
           focused ? "font-semibold text-primary" : "font-regular"
@@ -27,7 +27,7 @@ const TabsLayout = () => {
         tabBarActiveTintColor: "#1DB954",
         tabBarInactiveTintColor: "#BBD1D8",
         tabBarStyle: {
-          height: 74,
+          height: 84,
         },
       }}
     >

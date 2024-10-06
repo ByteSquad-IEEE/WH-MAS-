@@ -12,7 +12,7 @@ const WHMASCash = () => {
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={styles.gradient}
-        className="rounded-xl p-4"
+        className="rounded-xl p-4 "
       >
         <View className="flex items-center flex-row gap-2">
           <View className="bg-gray-100 w-[42px] h-[42px] rounded-full flex items-center justify-center">

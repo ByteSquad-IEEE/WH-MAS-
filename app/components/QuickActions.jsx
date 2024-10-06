@@ -4,7 +4,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const QuickActions = () => {
   return (
-    <View className="mx-4 mt-4 border border-[#D9D9D9] rounded-lg flex flex-row justify-center items-center">
+    <View className="mx-4 mt-28 border border-[#D9D9D9] rounded-lg flex flex-row justify-center items-center">
       <View className="p-2">
         <TouchableOpacity className="flex items-center">
           <View className="bg-[#53e88c42] p-2 rounded-md">

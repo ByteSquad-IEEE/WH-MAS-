@@ -70,47 +70,39 @@ const FloatingLabelInput = ({ label, value, onChangeText, keyboardType }) => {
   );
 };
 
-const registerPassword = ({ route }) => {
+const RegisterPassword = ({ route }) => {
   const router = useRouter();
   const params = useLocalSearchParams();
-  // const { userData } = route.params;
-  // const navigation = useNavigation();
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  // console.log(params)
+  const [confirm_password, setConfirmPassword] = useState("");
 
   const handleSubmit = async () => {
-    if (!password || !confirmPassword) {
+    if (!password || !confirm_password) {
       Alert.alert("Error", "Please fill in all fields.");
       return;
     }
 
-    if (password !== confirmPassword) {
+    if (password !== confirm_password) {
       Alert.alert("Error", "Passwords do not match.");
       return;
     }
 
     const base_url = "https://whmas-admin.vercel.app";
-    console.log("Sending Data:", params, password, confirmPassword);
+    console.log("Sending Data:", params, password, confirm_password);
 
-    // const paramsData = {
-    //   ...params,
-    //   password,
-    //   confirmPassword,
-    // };
-    const formData = new FormData();
-    Object.keys(params).forEach((key) => {
-      formData.append(key, params[key]);
-    });
-    formData.append("password", password);
-    formData.append("confirm_password", confirmPassword);
+    const paramsData = {
+      ...params,
+      password,
+      confirm_password,
+    };
+    console.log(paramsData)
     try {
       const response = await axios.post(
         `${base_url}/wh-mas/api/register`,
-        formData,
+        paramsData,
         {
           headers: {
-            "Content-Type": "multipart/form-data",
+            "Content-Type": "application/json",
           },
         }
       );
@@ -119,7 +111,10 @@ const registerPassword = ({ route }) => {
         { text: "OK", onPress: () => router.push("/login") },
       ]);
     } catch (error) {
-      console.error("Registration failed:", error.response);
+      console.error(
+        "Registration failed:",
+        error.response ? error.response.data : error.message
+      );
       Alert.alert("Error", "Registration failed. Please try again.");
     }
   };
@@ -150,7 +145,7 @@ const registerPassword = ({ route }) => {
       >
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => navigation.goBack()}
+          onPress={() => router.back()}
         >
           <Ionicons name="arrow-back" size={30} color="white" />
         </TouchableOpacity>
@@ -169,7 +164,7 @@ const registerPassword = ({ route }) => {
 
         <FloatingLabelInput
           label="Confirm Password"
-          value={confirmPassword}
+          value={confirm_password}
           onChangeText={setConfirmPassword}
           keyboardType="password"
           secureTextEntry={true}
@@ -289,4 +284,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default registerPassword;
+export default RegisterPassword;
