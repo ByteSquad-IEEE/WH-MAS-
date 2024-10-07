@@ -1,6 +1,7 @@
 import { router, useNavigation } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   ImageBackground,
   StyleSheet,
   Text,
@@ -29,6 +30,7 @@ const auth0 = new Auth0({
 const Start = () => {
   const navigation = useNavigation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -39,12 +41,15 @@ const Start = () => {
     const checkLoginStatus = async () => {
       try {
         const userId = await AsyncStorage.getItem("userId");
+
         if (userId) {
           setIsLoggedIn(true);
           router.push("dashboard");
         }
       } catch (error) {
         console.log("Error checking login status:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -61,6 +66,14 @@ const Start = () => {
     return null;
   }
 
+  if (loading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#00C853" />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container} onLayout={onLayoutRootView}>
       <ImageBackground
@@ -70,7 +83,6 @@ const Start = () => {
         <View style={styles.overlay} />
 
         <Text style={styles.title}>WMHAS</Text>
-
         <View style={styles.welcomeContainer}>
           <Text style={styles.welcomeText}>Welcome</Text>
           <Text style={styles.description}>
@@ -99,6 +111,11 @@ const Start = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   backgroundImage: {
     flex: 1,

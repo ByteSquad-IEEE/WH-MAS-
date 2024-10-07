@@ -11,6 +11,7 @@ const _layout = () => {
       <Stack.Screen name="registerPassword" options={{ headerShown: false }} />
       <Stack.Screen name="verifyOtp" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="waste/[id]" options={{ headerShown: false }} />
     </Stack>
   );
 };

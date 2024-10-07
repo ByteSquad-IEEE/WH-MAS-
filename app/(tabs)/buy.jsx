@@ -2,16 +2,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FilterAndSort from "../components/FilterAndSort";
-import ProfileInfo from "../components/ProfileInfo";
 import TopBarBtn from "../components/TopBarBtn";
 import WasteListing from "../components/WasteListing";
 

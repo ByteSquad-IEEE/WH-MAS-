@@ -100,7 +100,7 @@ const WasteDetails = () => {
         </View>
 
         <TouchableOpacity style={styles.contactButton}>
-          <Text style={styles.contactButtonText}>Contact Seller</Text>
+          <Text style={styles.contactButtonText}>Add to Cart</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
