@@ -10,18 +10,24 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Profile = () => {
+  const handleLogout = async () => {
+  await AsyncStorage.removeItem('userId');
+  router.push("/login"); // Redirect to the login screen
+};
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <ImageBackground
-          source={require('../../assets/DashbaordGreenBg.png')}
+          source={require("../../assets/DashbaordGreenBg.png")}
           style={styles.headerBackground}
         >
           {/* Back Button */}
-          <TouchableOpacity style={styles.backButton}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <Ionicons name="arrow-back" size={30} color="white" />
           </TouchableOpacity>
 
@@ -33,7 +39,7 @@ const Profile = () => {
           {/* Profile Image and Info */}
           <View style={styles.profileHeader}>
             <Image
-              source={require('../../assets/profileImage.png')}
+              source={require("../../assets/profileImage.png")}
               style={styles.profileImage}
             />
             <View style={styles.profileDetails}>
@@ -86,17 +92,15 @@ const Profile = () => {
           <Text style={styles.optionText}>Referal Program</Text>
         </TouchableOpacity>
 
-
         <TouchableOpacity style={styles.optionItem}>
           <Ionicons name="settings-outline" size={24} color="#4CAF50" />
           <Text style={styles.optionText}>Settings</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.optionItem}>
+        <TouchableOpacity style={styles.optionItem} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={24} color="red" />
           <Text style={styles.optionText}>Log Out</Text>
         </TouchableOpacity>
-
       </ScrollView>
     </SafeAreaView>
   );

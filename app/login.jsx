@@ -1,7 +1,16 @@
+import {
+  Poppins_400Regular,
+  Poppins_700Bold,
+  useFonts,
+} from "@expo-google-fonts/poppins";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
+import { router, useRouter } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Animated,
   ImageBackground,
   ScrollView,
@@ -10,20 +19,17 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  ActivityIndicator,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  Poppins_400Regular,
-  Poppins_700Bold,
-  useFonts,
-} from "@expo-google-fonts/poppins";
-import * as SplashScreen from "expo-splash-screen";
-import { router, useRouter } from "expo-router";
 
 // SplashScreen.preventAutoHideAsync();
 
-const FloatingLabelInput = ({ label, value, onChangeText, keyboardType, secureTextEntry }) => {
+const FloatingLabelInput = ({
+  label,
+  value,
+  onChangeText,
+  keyboardType,
+  secureTextEntry,
+}) => {
   const [isFocused, setIsFocused] = useState(false);
   const animatedLabel = useRef(new Animated.Value(value ? 1 : 0)).current;
 
@@ -62,7 +68,7 @@ const FloatingLabelInput = ({ label, value, onChangeText, keyboardType, secureTe
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         keyboardType={keyboardType}
-        secureTextEntry={secureTextEntry}  
+        secureTextEntry={secureTextEntry}
         placeholder={isFocused ? "" : label}
         placeholderTextColor="#aaa"
       />
@@ -75,10 +81,10 @@ const LoginScreen = () => {
   const navigation = useNavigation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false); 
-  const [error, setError] = useState(null); 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const base_url = "https://whmas-admin.vercel.app"; 
+  const base_url = "https://whmas-admin.vercel.app";
 
   let [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -104,33 +110,27 @@ const LoginScreen = () => {
       setError("Please enter both email and password.");
       return;
     }
-  
+
     setLoading(true);
     setError(null);
-  
+
     try {
-      console.log("Sending login request...");
+      console.log("Sending login request...", email, password);
       const response = await fetch(`${base_url}/wh-mas/api/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
+        email,
+        password,
       });
-  
+
       console.log("Response status:", response.status);
-  
-      const data = await response.json();
+
+      const data = response.data;
       console.log("Response data:", data);
-  
+
       if (response.ok) {
         setLoading(false);
         await saveEmailToStorage(email);
-        await AsyncStorage.setItem("userId", data.message.success.id);
-        console.log(data.message.success.id)
+        // await AsyncStorage.setItem("userId", data?.message?.success.id);
+        console.log(data);
         router.push("/dashboard");
       } else {
         setLoading(false);
@@ -138,22 +138,22 @@ const LoginScreen = () => {
       }
     } catch (error) {
       setLoading(false);
-      console.error("Fetch error:", error); 
+      console.error("Post error:", error);
       setError("An unexpected error occurred. Please try again.");
     }
   };
 
-    const checkLoginStatus = async () => {
-      const token = await AsyncStorage.getItem("userId");
-      if (token) {
-        router.push("/dashboard");
-      }
-    };
+  const checkLoginStatus = async () => {
+    const token = await AsyncStorage.getItem("userId");
+    if (token) {
+      router.push("/dashboard");
+    }
+  };
 
-    useEffect(() => {
-      checkLoginStatus();
-    }, []);
-  
+  useEffect(() => {
+    checkLoginStatus();
+  }, []);
+
   if (!fontsLoaded) {
     return null;
   }
@@ -192,7 +192,7 @@ const LoginScreen = () => {
           value={password}
           onChangeText={setPassword}
           keyboardType="default"
-          secureTextEntry={true} 
+          secureTextEntry={true}
         />
 
         {error && <Text style={styles.errorText}>{error}</Text>}
