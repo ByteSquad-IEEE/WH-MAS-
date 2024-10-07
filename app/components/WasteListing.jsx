@@ -1,4 +1,6 @@
+import Entypo from "@expo/vector-icons/Entypo";
 import axios from "axios";
+import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -7,9 +9,9 @@ import {
   RefreshControl,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 const WasteListing = () => {
   const [wasteList, setWasteList] = useState([]);
@@ -81,24 +83,58 @@ const WasteListing = () => {
     );
   }
 
+  const handleWastePress = (wasteItem) => {
+    router.push({
+      pathname: "/waste/[id]",
+      params: { id: wasteItem.id },
+    });
+  };
+
   const renderItem = ({ item }) => (
-    <View style={styles.wasteCard}>
+    <TouchableOpacity
+      onPress={() => handleWastePress(item)}
+      style={styles.wasteCard}
+    >
+      <View style={styles.statusBadge}>
+        <Text style={styles.statusText}>New</Text>
+      </View>
+
       <Image
         source={{ uri: imageList.map((img) => img.base64)[item.image1] }}
         style={styles.image}
       />
+
+      <TouchableOpacity style={styles.favoriteButton}>
+        <Entypo name="heart-outlined" size={20} color="#FF4081" />
+      </TouchableOpacity>
+
       <Text style={styles.title}>{item.name}</Text>
-      <Text className="text-sm font-bold text-gray-500">
-        Location: {item.location}
-      </Text>
+
+      <View style={styles.locationContainer}>
+        <Entypo name="location-pin" size={16} color="#666" />
+        <Text style={styles.locationText}>{item.location}</Text>
+      </View>
+
       <Text style={styles.description} numberOfLines={2}>
         {item.description}
       </Text>
-      <Text style={styles.infoText}>Date: {item.datestamp}</Text>
-      <Text className="text-lg font-bold text-gray-500">
-        Price: ₦{item.price}
-      </Text>
-    </View>
+
+      <View style={styles.dateContainer}>
+        <Entypo name="calendar" size={14} color="#666" />
+        <Text style={styles.dateText}>{item.datestamp}</Text>
+      </View>
+
+      <View style={styles.priceTag}>
+        <Text style={styles.priceText}>₦{item.price}</Text>
+      </View>
+
+      <View style={styles.actionBar}>
+        <TouchableOpacity style={styles.detailsButton}>
+          <Entypo name="dots-three-vertical" size={10} color="#1DB954" />
+          <Text style={styles.detailsText}>Details</Text>
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -118,7 +154,7 @@ const WasteListing = () => {
 
 const styles = StyleSheet.create({
   listContainer: {
-    paddingVertical: 20,
+    paddingVertical: 10,
   },
   centerContainer: {
     flex: 1,
@@ -129,7 +165,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "white",
     borderRadius: 8,
-    padding: 16,
+    padding: 10,
     margin: 8,
     elevation: 2,
     shadowColor: "#000",
@@ -146,16 +182,102 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 8,
+    marginBottom: 3,
   },
   description: {
     fontSize: 14,
     color: "#666",
-    marginVertical: 8,
+    marginVertical: 6,
   },
   errorText: {
     fontSize: 16,
     color: "red",
+  },
+  statusBadge: {
+    position: "absolute",
+    top: 8,
+    left: 8,
+    backgroundColor: "#1DB954",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    zIndex: 1,
+  },
+  statusText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  favoriteButton: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    backgroundColor: "white",
+    padding: 6,
+    borderRadius: 20,
+    zIndex: 1,
+  },
+  locationContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  locationText: {
+    marginLeft: 4,
+    fontSize: 14,
+    color: "#666",
+  },
+  dateContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  dateText: {
+    marginLeft: 4,
+    fontSize: 12,
+    color: "#666",
+  },
+  priceTag: {
+    backgroundColor: "#E8F5E9",
+    alignSelf: "flex-start",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 16,
+    marginBottom: 8,
+  },
+  priceText: {
+    color: "#1DB954",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  actionBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    borderTopWidth: 1,
+    borderTopColor: "#E0E0E0",
+    paddingTop: 8,
+  },
+  detailsButton: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  detailsText: {
+    marginLeft: 4,
+    color: "#1DB954",
+    fontSize: 14,
+  },
+  contactButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#E8F5E9",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 16,
+  },
+  contactText: {
+    marginLeft: 4,
+    color: "#1DB954",
+    fontSize: 14,
   },
 });
 

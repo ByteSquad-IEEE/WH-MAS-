@@ -1,7 +1,16 @@
+import {
+  Poppins_400Regular,
+  Poppins_700Bold,
+  useFonts,
+} from "@expo-google-fonts/poppins";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import { useRouter } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Animated,
   ImageBackground,
@@ -11,15 +20,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  ActivityIndicator,
 } from "react-native";
-import {
-  Poppins_400Regular,
-  Poppins_700Bold,
-  useFonts,
-} from "@expo-google-fonts/poppins";
-import { useRouter } from "expo-router";
-import * as SplashScreen from "expo-splash-screen";
 import { SelectList } from "react-native-dropdown-select-list";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -30,7 +31,13 @@ const data = [
   { key: "2", value: "Waste Seller" },
 ];
 
-const FloatingLabelInput = ({ label, value, onChangeText, keyboardType, secureTextEntry }) => {
+const FloatingLabelInput = ({
+  label,
+  value,
+  onChangeText,
+  keyboardType,
+  secureTextEntry,
+}) => {
   const [isFocused, setIsFocused] = useState(false);
   const animatedLabel = useRef(new Animated.Value(value ? 1 : 0)).current;
 
@@ -71,7 +78,7 @@ const FloatingLabelInput = ({ label, value, onChangeText, keyboardType, secureTe
         keyboardType={keyboardType}
         placeholder={isFocused ? "" : label}
         placeholderTextColor="#aaa"
-        secureTextEntry={secureTextEntry} 
+        secureTextEntry={secureTextEntry}
       />
     </View>
   );
@@ -89,7 +96,7 @@ const RegisterScreen = () => {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);  
+  const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   let [fontsLoaded] = useFonts({
@@ -110,8 +117,19 @@ const RegisterScreen = () => {
   const base_url = "https://whmas-admin.vercel.app";
 
   const handleSubmit = async () => {
-    setErrorMessage(""); 
-    if (!firstName || !lastName || !email || !state || !city || !address || !phone || !password || !confirmPassword || !selected) {
+    setErrorMessage("");
+    if (
+      !firstName ||
+      !lastName ||
+      !email ||
+      !state ||
+      !city ||
+      !address ||
+      !phone ||
+      !password ||
+      !confirmPassword ||
+      !selected
+    ) {
       setErrorMessage("Please fill in all fields.");
       return;
     }
@@ -141,7 +159,7 @@ const RegisterScreen = () => {
       return;
     }
 
-    setIsLoading(true);  
+    setIsLoading(true);
     try {
       const response = await axios.post(`${base_url}/wh-mas/api/register`, {
         first_name: firstName,
@@ -157,25 +175,36 @@ const RegisterScreen = () => {
       });
 
       const resData = response.data;
-      setIsLoading(false);  
+      console.log(resData)
+      setIsLoading(false);
       if (resData.status === "failed") {
-        setErrorMessage(resData.message);  
+        setErrorMessage(resData.message);
       } else {
+        await AsyncStorage.setItem("userId", resData.message.success.id);
         Alert.alert("Success", "Registration completed successfully!");
         router.push("/verifyOtp"); // Navigate to OTP screen after successful registration
       }
     } catch (error) {
-      setIsLoading(false);  
+      setIsLoading(false);
       console.log("Failed to submit data:", error);
-      setErrorMessage("Registration failed. Please try again."); 
+      setErrorMessage("Registration failed. Please try again.");
     }
   };
 
   return (
     <SafeAreaView>
-      <ScrollView contentContainerStyle={styles.container} onLayout={onLayoutRootView}>
-        <ImageBackground source={require("../assets/authBgPatternImg.png")} style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        onLayout={onLayoutRootView}
+      >
+        <ImageBackground
+          source={require("../assets/authBgPatternImg.png")}
+          style={styles.header}
+        >
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
             <Ionicons name="arrow-back" size={30} color="white" />
           </TouchableOpacity>
           <Text style={styles.headerText}>Register</Text>
@@ -185,37 +214,92 @@ const RegisterScreen = () => {
         <View style={styles.form}>
           <View style={styles.inputRow}>
             <View style={styles.halfInput}>
-              <FloatingLabelInput label="First name" value={firstName} onChangeText={setFirstName} />
+              <FloatingLabelInput
+                label="First name"
+                value={firstName}
+                onChangeText={setFirstName}
+              />
             </View>
             <View style={styles.halfInput}>
-              <FloatingLabelInput label="Last name" value={lastName} onChangeText={setLastName} />
+              <FloatingLabelInput
+                label="Last name"
+                value={lastName}
+                onChangeText={setLastName}
+              />
             </View>
           </View>
 
-          <FloatingLabelInput label="Email" value={email} onChangeText={setEmail} keyboardType="email-address" />
+          <FloatingLabelInput
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+          />
 
           <View style={styles.inputRow}>
             <View style={styles.halfInput}>
-              <FloatingLabelInput label="State" value={state} onChangeText={setState} />
+              <FloatingLabelInput
+                label="State"
+                value={state}
+                onChangeText={setState}
+              />
             </View>
             <View style={styles.halfInput}>
-              <FloatingLabelInput label="City" value={city} onChangeText={setCity} />
+              <FloatingLabelInput
+                label="City"
+                value={city}
+                onChangeText={setCity}
+              />
             </View>
           </View>
 
-          <FloatingLabelInput label="Address" value={address} onChangeText={setAddress} />
-          <FloatingLabelInput label="Phone" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
-          <FloatingLabelInput label="Password" value={password} onChangeText={setPassword} secureTextEntry={true} keyboardType="default" />
-          <FloatingLabelInput label="Confirm Password" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry={true} keyboardType="default" />
+          <FloatingLabelInput
+            label="Address"
+            value={address}
+            onChangeText={setAddress}
+          />
+          <FloatingLabelInput
+            label="Phone"
+            value={phone}
+            onChangeText={setPhone}
+            keyboardType="phone-pad"
+          />
+          <FloatingLabelInput
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={true}
+            keyboardType="default"
+          />
+          <FloatingLabelInput
+            label="Confirm Password"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry={true}
+            keyboardType="default"
+          />
 
           <View style={styles.pickerContainer}>
-            <SelectList setSelected={(val) => setSelected(val)} data={data} save="value" search={false} placeholder="Select Role" fontFamily="Poppins_400Regular" />
+            <SelectList
+              setSelected={(val) => setSelected(val)}
+              data={data}
+              save="value"
+              search={false}
+              placeholder="Select Role"
+              fontFamily="Poppins_400Regular"
+            />
           </View>
 
           {/* Error message displayed here */}
-          {errorMessage ? <Text style={styles.errorMessage}>{errorMessage}</Text> : null}
+          {errorMessage ? (
+            <Text style={styles.errorMessage}>{errorMessage}</Text>
+          ) : null}
 
-          <TouchableOpacity style={styles.button} onPress={handleSubmit} disabled={isLoading}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleSubmit}
+            disabled={isLoading}
+          >
             {isLoading ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (

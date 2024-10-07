@@ -129,6 +129,8 @@ const LoginScreen = () => {
       if (response.ok) {
         setLoading(false);
         await saveEmailToStorage(email);
+        await AsyncStorage.setItem("userId", data.message.success.id);
+        console.log(data.message.success.id)
         router.push("/dashboard");
       } else {
         setLoading(false);
@@ -140,6 +142,17 @@ const LoginScreen = () => {
       setError("An unexpected error occurred. Please try again.");
     }
   };
+
+    const checkLoginStatus = async () => {
+      const token = await AsyncStorage.getItem("userId");
+      if (token) {
+        router.push("/home");
+      }
+    };
+
+    useEffect(() => {
+      checkLoginStatus();
+    }, []);
   
   if (!fontsLoaded) {
     return null;

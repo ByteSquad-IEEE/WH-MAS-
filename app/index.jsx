@@ -1,5 +1,5 @@
-import { useNavigation } from "expo-router";
-import { useCallback } from "react";
+import { router, useNavigation } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import {
   ImageBackground,
   StyleSheet,
@@ -16,23 +16,40 @@ import {
 import * as SplashScreen from "expo-splash-screen";
 
 // Skipp - React Native Auth0 integration
-import Auth0 from 'react-native-auth0';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Auth0 from "react-native-auth0";
 
 const auth0 = new Auth0({
-  domain: 'dev-b5g4d5rsurrmubie.us.auth0.com',
-  clientId: 'cUB1ixYLTVpKsVMVmIbh3U1TNBOPGqcO',
+  domain: "dev-b5g4d5rsurrmubie.us.auth0.com",
+  clientId: "cUB1ixYLTVpKsVMVmIbh3U1TNBOPGqcO",
 });
-
 
 // SplashScreen.preventAutoHideAsync();
 
 const Start = () => {
   const navigation = useNavigation();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_700Bold,
   });
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const userId = await AsyncStorage.getItem("userId");
+        if (userId) {
+          setIsLoggedIn(true);
+          router.push("dashboard");
+        }
+      } catch (error) {
+        console.log("Error checking login status:", error);
+      }
+    };
+
+    checkLoginStatus();
+  }, []);
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
