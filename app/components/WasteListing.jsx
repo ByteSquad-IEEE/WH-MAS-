@@ -84,10 +84,7 @@ const WasteListing = () => {
   }
 
   const handleWastePress = (wasteItem) => {
-    router.push({
-      pathname: "/waste/[id]",
-      params: { id: wasteItem.id },
-    });
+    router.push(`/buy/${wasteItem.id}`);
   };
 
   const renderItem = ({ item }) => (

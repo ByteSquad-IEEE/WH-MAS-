@@ -9,9 +9,9 @@ import {
   View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import FilterAndSort from "../components/FilterAndSort";
-import TopBarBtn from "../components/TopBarBtn";
-import WasteListing from "../components/WasteListing";
+import FilterAndSort from "../../components/FilterAndSort";
+import TopBarBtn from "../../components/TopBarBtn";
+import WasteListing from "../../components/WasteListing";
 
 const BuyWaste = () => {
   const [searchQuery, setSearchQuery] = useState("");

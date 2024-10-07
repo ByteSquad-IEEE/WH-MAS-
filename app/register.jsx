@@ -183,6 +183,7 @@ const RegisterScreen = () => {
         await AsyncStorage.setItem("userId", resData.message.success.id);
         await AsyncStorage.setItem("firstName", resData.message.success.first_name);
         await AsyncStorage.setItem("lastName", resData.message.success.last_name);
+        await AsyncStorage.setItem("UserEmail", resData.message.success.email);
         await AsyncStorage.setItem("walletBalance", resData.message.success.wallet_balance);
         Alert.alert("Success", "Registration completed successfully!");
         router.push("/verifyOtp");

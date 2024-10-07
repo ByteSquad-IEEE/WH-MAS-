@@ -1,18 +1,26 @@
+import Entypo from "@expo/vector-icons/Entypo";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Button,
   Image,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import Entypo from "@expo/vector-icons/Entypo";
-import axios from "axios";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
+import { useCart } from "../../CartContext";
+import TopBarBtn from "../../components/TopBarBtn";
 
 const WasteDetails = () => {
+  const { updateCart } = useCart();
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const [waste, setWaste] = useState(null);
@@ -68,41 +76,83 @@ const WasteDetails = () => {
     );
   }
 
+  const addToCart = async () => {
+    try {
+      const existingCartJSON = await AsyncStorage.getItem("cart");
+      let cart = existingCartJSON ? JSON.parse(existingCartJSON) : [];
+
+      const existingItemIndex = cart.findIndex((item) => item.id === waste.id);
+
+      if (existingItemIndex !== -1) {
+        cart[existingItemIndex].quantity += 1;
+      } else {
+        cart.push({
+          ...waste,
+          image: image,
+          quantity: 1,
+        });
+      }
+
+      await AsyncStorage.setItem("cart", JSON.stringify(cart));
+      updateCart(); // Update the cart context after modifying the cart
+
+      Toast.show({
+        type: "success",
+        text1: "Item added to Cart",
+        text2: "Check Cart 👋",
+        topOffset: 90,
+      });
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      Toast.show({
+        type: "error",
+        text1: "Failed to add item to cart",
+        text2: "Please try again",
+        topOffset: 90,
+      });
+    }
+  };
+
   return (
     <ScrollView style={styles.container}>
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Entypo name="chevron-left" size={24} color="#333" />
-      </TouchableOpacity>
-
-      {image && <Image source={{ uri: image }} style={styles.image} />}
-
-      <View style={styles.contentContainer}>
-        <Text style={styles.title}>{waste.name}</Text>
-
-        <View style={styles.priceContainer}>
-          <Text style={styles.price}>₦{waste.price}</Text>
-          <View style={styles.statusBadge}>
-            <Text style={styles.statusText}>New</Text>
-          </View>
-        </View>
-
-        <View style={styles.locationContainer}>
-          <Entypo name="location-pin" size={16} color="#666" />
-          <Text style={styles.locationText}>{waste.location}</Text>
-        </View>
-
-        <Text style={styles.sectionTitle}>Description</Text>
-        <Text style={styles.description}>{waste.description}</Text>
-
-        <View style={styles.dateContainer}>
-          <Entypo name="calendar" size={14} color="#666" />
-          <Text style={styles.dateText}>Posted on {waste.datestamp}</Text>
-        </View>
-
-        <TouchableOpacity style={styles.contactButton}>
-          <Text style={styles.contactButtonText}>Add to Cart</Text>
+      <SafeAreaView>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <Entypo name="chevron-left" size={24} color="#333" />
         </TouchableOpacity>
-      </View>
+        <TopBarBtn style={styles.cartButton} />
+
+        {image && <Image source={{ uri: image }} style={styles.image} />}
+
+        <View style={styles.contentContainer}>
+          <Text style={styles.title}>{waste.name}</Text>
+
+          <View style={styles.priceContainer}>
+            <Text style={styles.price}>₦{waste.price}</Text>
+            <View style={styles.statusBadge}>
+              <Text style={styles.statusText}>New</Text>
+            </View>
+          </View>
+
+          <View style={styles.locationContainer}>
+            <Entypo name="location-pin" size={16} color="#666" />
+            <Text style={styles.locationText}>{waste.location}</Text>
+          </View>
+
+          <Text style={styles.sectionTitle}>Description</Text>
+          <Text style={styles.description}>{waste.description}</Text>
+
+          <View style={styles.dateContainer}>
+            <Entypo name="calendar" size={14} color="#666" />
+            <Text style={styles.dateText}>Posted on {waste.datestamp}</Text>
+          </View>
+          <Pressable style={styles.contactButton} onPress={addToCart}>
+            <Text style={styles.contactButtonText}>Add to Cart</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
     </ScrollView>
   );
 };
@@ -130,6 +180,12 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "rgba(255, 255, 255, 0.8)",
     borderRadius: 20,
+  },
+  cartButton: {
+    position: "absolute",
+    top: 40,
+    right: 10,
+    zIndex: 1,
   },
   image: {
     width: "100%",

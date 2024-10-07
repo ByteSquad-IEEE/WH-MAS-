@@ -6,6 +6,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
+import axios from "axios";
 import { router, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -20,6 +21,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Toast from "react-native-toast-message";
 
 // SplashScreen.preventAutoHideAsync();
 
@@ -105,43 +107,51 @@ const LoginScreen = () => {
     }
   };
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      setError("Please enter both email and password.");
-      return;
-    }
+const handleLogin = async () => {
+  if (!email || !password) {
+    setError("Please enter both email and password.");
+    return;
+  }
 
-    setLoading(true);
-    setError(null);
+  setLoading(true);
+  setError(null);
 
-    try {
-      console.log("Sending login request...", email, password);
-      const response = await fetch(`${base_url}/wh-mas/api/login`, {
-        email,
-        password,
+  try {
+    console.log("Sending login request...", email, password);
+    const response = await axios.post(`${base_url}/wh-mas/api/login`, {
+      email,
+      password,
+    });
+
+    if (response.status === 200) {
+      const resData = response.data;
+      await AsyncStorage.setItem("userId", resData.message.success.id);
+      router.push("/dashboard");
+      Toast.show({
+        text1: "Login successful",
       });
-
       console.log("Response status:", response.status);
-
-      const data = response.data;
-      console.log("Response data:", data);
-
-      if (response.ok) {
-        setLoading(false);
-        await saveEmailToStorage(email);
-        // await AsyncStorage.setItem("userId", data?.message?.success.id);
-        console.log(data);
-        router.push("/dashboard");
-      } else {
-        setLoading(false);
-        setError(data.message || "Login failed. Please try again.");
-      }
-    } catch (error) {
-      setLoading(false);
-      console.error("Post error:", error);
+      console.log("Response Data:", resData);
+    } else {
+      setError("Invalid login credentials. Please try again.");
+    }
+  } catch (error) {
+    if (error.response) {
+      console.error("Response error:", error.response.data);
+      setError(
+        error.response.data.message || "Login failed. Please try again."
+      );
+    } else if (error.request) {
+      console.error("Request error:", error.request);
+      setError("No response from the server. Please check your connection.");
+    } else {
+      console.error("Post error:", error.message);
       setError("An unexpected error occurred. Please try again.");
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   const checkLoginStatus = async () => {
     const token = await AsyncStorage.getItem("userId");
@@ -209,7 +219,7 @@ const LoginScreen = () => {
           Don't have an account?{" "}
           <Text
             style={styles.linkText}
-            onPress={() => navigation.navigate("register")}
+            onPress={() => router.push("dashboard")}
           >
             Register
           </Text>
