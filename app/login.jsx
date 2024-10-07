@@ -12,7 +12,7 @@ import {
   View,
   ActivityIndicator,
 } from "react-native";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   Poppins_400Regular,
   Poppins_700Bold,
@@ -23,7 +23,7 @@ import { router, useRouter } from "expo-router";
 
 // SplashScreen.preventAutoHideAsync();
 
-const FloatingLabelInput = ({ label, value, onChangeText, keyboardType }) => {
+const FloatingLabelInput = ({ label, value, onChangeText, keyboardType, secureTextEntry }) => {
   const [isFocused, setIsFocused] = useState(false);
   const animatedLabel = useRef(new Animated.Value(value ? 1 : 0)).current;
 
@@ -62,6 +62,7 @@ const FloatingLabelInput = ({ label, value, onChangeText, keyboardType }) => {
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         keyboardType={keyboardType}
+        secureTextEntry={secureTextEntry}  
         placeholder={isFocused ? "" : label}
         placeholderTextColor="#aaa"
       />
@@ -77,6 +78,8 @@ const LoginScreen = () => {
   const [loading, setLoading] = useState(false); 
   const [error, setError] = useState(null); 
 
+  const base_url = "https://whmas-admin.vercel.app";  // Base URL
+
   let [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_700Bold,
@@ -88,6 +91,15 @@ const LoginScreen = () => {
     }
   }, [fontsLoaded]);
 
+  // Save email to AsyncStorage on successful login
+  const saveEmailToStorage = async (email) => {
+    try {
+      await AsyncStorage.setItem("userEmail", email);
+    } catch (error) {
+      console.error("Failed to save email to storage:", error);
+    }
+  };
+
   const handleLogin = async () => {
     if (!email || !password) {
       setError("Please enter both email and password.");
@@ -98,7 +110,7 @@ const LoginScreen = () => {
     setError(null);
 
     try {
-      const response = await fetch("https://whmas-admin.vercel.app/wh-mas/api/login", {
+      const response = await fetch(`${base_url}/wh-mas/api/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -113,7 +125,9 @@ const LoginScreen = () => {
 
       if (response.ok) {
         setLoading(false);
-        router.push("/dashboard");
+        // Save the email to AsyncStorage (local storage)
+        await saveEmailToStorage(email);
+        router.push("/dashboard"); // Navigate to the dashboard on success
       } else {
         setLoading(false);
         setError(data.message || "Login failed. Please try again.");
@@ -162,6 +176,7 @@ const LoginScreen = () => {
           value={password}
           onChangeText={setPassword}
           keyboardType="default"
+          secureTextEntry={true}  // Enable secure text entry for password
         />
 
         {error && <Text style={styles.errorText}>{error}</Text>}

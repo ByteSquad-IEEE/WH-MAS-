@@ -11,6 +11,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ActivityIndicator, 
 } from "react-native";
 
 import {
@@ -65,6 +66,7 @@ const VerifyOtp = () => {
   const router = useRouter();
   const navigation = useNavigation();
   const [otpCode, setOtpCode] = useState(["", "", "", "", "", ""]);
+  const [loading, setLoading] = useState(false);  // State for preloader
 
   let [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -92,30 +94,44 @@ const VerifyOtp = () => {
   };
 
   const handleSubmit = async () => {
-    const base_url = "https://whmas-admin.vercel.app";
-    const email = await getStoredEmail();
-    const otp = otpCode.join("");
-    console.log(email, otp)
+    setLoading(true);  // Show the preloader when the function starts
 
-    if (!email) {
-      console.error("No email found in storage");
-      return;
-    }
-    try {
-      const response = await axios.post(`${base_url}/wh-mas/api/confirm-otp`, {
-        otp,
-        email,
-      });
+    // Simulate a 5-second delay
+    setTimeout(async () => {
+      const base_url = "https://whmas-admin.vercel.app";
+      const email = await getStoredEmail();
+      const otp = otpCode.join("");
 
-      const resData = response.data;
-      console.log(resData);
-      Alert.alert("Success", "Otp verification Successful!", [
-        { text: "OK", onPress: () => router.push("/dashboard") },
-      ]);
-    } catch (error) {
-      console.log("Error submitting Data:", error);
-      Alert.alert("Error", "Otp verification failed. Please try again.");
-    }
+      if (!email) {
+        console.error("No email found in storage");
+        setLoading(false);  // Hide the preloader on failure
+        return;
+      }
+
+      try {
+        const response = await axios.post(`${base_url}/wh-mas/api/confirm-otp`, {
+          otp,
+          email,
+        });
+
+        const resData = response.data;
+        console.log(resData);
+
+        // Check if the response indicates failure
+        if (resData.message && resData.message.failed === "OTP is wrong") {
+          Alert.alert("Error", "The OTP you entered is incorrect. Please try again.");
+        } else {
+          Alert.alert("Success", "OTP verification Successful!", [
+            { text: "OK", onPress: () => router.push("/dashboard") },
+          ]);
+        }
+      } catch (error) {
+        console.log("Error submitting Data:", error);
+        Alert.alert("Error", "Otp verification failed. Please try again.");
+      } finally {
+        setLoading(false);  // Hide the preloader after the request
+      }
+    }, 5000);  // 5 seconds delay
   };
 
   return (
@@ -149,12 +165,16 @@ const VerifyOtp = () => {
 
         <OtpInput code={otpCode} setCode={setOtpCode} />
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleSubmit}
-        >
-          <Text style={styles.buttonText}>Verify</Text>
-        </TouchableOpacity>
+        {loading ? (  // Show the preloader if loading is true
+          <ActivityIndicator size="large" color="#00C853" />
+        ) : (
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleSubmit}
+          >
+            <Text style={styles.buttonText}>Verify</Text>
+          </TouchableOpacity>
+        )}
 
         <Text style={styles.footerText}>
           Didn't get a code?{" "}
@@ -169,6 +189,7 @@ const VerifyOtp = () => {
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
