@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigation } from "@react-navigation/native";
 import {
   Image,
   ScrollView,
@@ -12,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Profile = () => {
+  const navigation = useNavigation();
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -22,7 +24,7 @@ const Profile = () => {
         >
           {/* Back Button */}
           <TouchableOpacity style={styles.backButton}>
-            <Ionicons name="arrow-back" size={30} color="white" />
+            <Ionicons name="arrow-back" size={30} color="white"   onPress={() => navigation.goBack()} />
           </TouchableOpacity>
 
           {/* Edit Button */}
