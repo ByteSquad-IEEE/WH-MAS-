@@ -146,7 +146,7 @@ const LoginScreen = () => {
     const checkLoginStatus = async () => {
       const token = await AsyncStorage.getItem("userId");
       if (token) {
-        router.push("/home");
+        router.push("/dashboard");
       }
     };
 
