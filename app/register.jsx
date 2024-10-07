@@ -1,5 +1,4 @@
 import { Ionicons } from "@expo/vector-icons";
-// import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -12,9 +11,8 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from "react-native";
-import Config from "react-native-config";
-
 import {
   Poppins_400Regular,
   Poppins_700Bold,
@@ -32,7 +30,7 @@ const data = [
   { key: "2", value: "Waste Seller" },
 ];
 
-const FloatingLabelInput = ({ label, value, onChangeText, keyboardType }) => {
+const FloatingLabelInput = ({ label, value, onChangeText, keyboardType, secureTextEntry }) => {
   const [isFocused, setIsFocused] = useState(false);
   const animatedLabel = useRef(new Animated.Value(value ? 1 : 0)).current;
 
@@ -73,6 +71,7 @@ const FloatingLabelInput = ({ label, value, onChangeText, keyboardType }) => {
         keyboardType={keyboardType}
         placeholder={isFocused ? "" : label}
         placeholderTextColor="#aaa"
+        secureTextEntry={secureTextEntry} 
       />
     </View>
   );
@@ -80,9 +79,7 @@ const FloatingLabelInput = ({ label, value, onChangeText, keyboardType }) => {
 
 const RegisterScreen = () => {
   const router = useRouter();
-  // const navigation = useNavigation();
-  const [selected, setSelected] = useState([]);
-  // const [selectedRole, setSelectedRole] = useState("");
+  const [selected, setSelected] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -90,6 +87,10 @@ const RegisterScreen = () => {
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);  
+  const [errorMessage, setErrorMessage] = useState("");
 
   let [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -107,88 +108,74 @@ const RegisterScreen = () => {
   }
 
   const base_url = "https://whmas-admin.vercel.app";
-  // console.log("Base URL:", base_url);
 
-  // Inside RegisterScreen
-  const handleNext = () => {
-    if (
-      !firstName ||
-      !lastName ||
-      !email ||
-      !state ||
-      !city ||
-      !address ||
-      !phone ||
-      !selected
-    ) {
-      Alert.alert("Error", "Please fill in all fields and select a role.");
+  const handleSubmit = async () => {
+    setErrorMessage(""); 
+    if (!firstName || !lastName || !email || !state || !city || !address || !phone || !password || !confirmPassword || !selected) {
+      setErrorMessage("Please fill in all fields.");
       return;
     }
 
-    const userData = {
-      first_name: firstName,
-      last_name: lastName,
-      email,
-      state,
-      city,
-      address,
-      phone_number: phone,
-      user_role: selected,
-    };
+    if (email.length < 4) {
+      setErrorMessage("Email is too short.");
+      return;
+    }
 
-    router.push({
-      pathname: "/registerPassword",
-      params: userData,
-    });
+    if (firstName.length < 2 || lastName.length < 2) {
+      setErrorMessage("First name or last name is too short.");
+      return;
+    }
+
+    if (phone.length < 11) {
+      setErrorMessage("Phone number must be at least 11 digits.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setErrorMessage("Passwords do not match.");
+      return;
+    }
+
+    if (password.length < 8) {
+      setErrorMessage("Password must be at least 8 characters long.");
+      return;
+    }
+
+    setIsLoading(true);  
+    try {
+      const response = await axios.post(`${base_url}/wh-mas/api/register`, {
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        state,
+        city,
+        address,
+        phone_number: phone,
+        user_role: selected,
+        password,
+        confirm_password: confirmPassword,
+      });
+
+      const resData = response.data;
+      setIsLoading(false);  
+      if (resData.status === "failed") {
+        setErrorMessage(resData.message);  
+      } else {
+        Alert.alert("Success", "Registration completed successfully!");
+        router.push("/verifyOtp"); // Navigate to OTP screen after successful registration
+      }
+    } catch (error) {
+      setIsLoading(false);  
+      console.log("Failed to submit data:", error);
+      setErrorMessage("Registration failed. Please try again."); 
+    }
   };
-
-  // const handleSubmit = async () => {
-  //   if (
-  //     !firstName ||
-  //     !lastName ||
-  //     !email ||
-  //     !state ||
-  //     !city ||
-  //     !address ||
-  //     !phone ||
-  //     !selected
-  //   ) {
-  //     Alert.alert("Error", "Please fill in all fields and select a role.");
-  //     return;
-  //   }
-  //   try {
-  //     const response = await axios.post(`${base_url}/wh-mas/api/register`, {
-  //       first_name: firstName,
-  //       last_Name: lastName,
-  //       email,
-  //       state,
-  //       city,
-  //       address,
-  //       phone_number: phone,
-  //       user_role: selected,
-  //     });
-  //     const resData = response.data;
-  //     console.log(resData);
-  //   } catch (error) {
-  //     console.log("Failed to submit data:", error);
-  //     Alert.alert("Error", "Registration failed. Please try again.");
-  //   }
-  // };
 
   return (
     <SafeAreaView>
-      <ScrollView
-        contentContainerStyle={styles.container}
-        onLayout={onLayoutRootView}
-      >
-        <ImageBackground
-          source={require("../assets/authBgPatternImg.png")}
-          style={styles.header}
-        >
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
+      <ScrollView contentContainerStyle={styles.container} onLayout={onLayoutRootView}>
+        <ImageBackground source={require("../assets/authBgPatternImg.png")} style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <Ionicons name="arrow-back" size={30} color="white" />
           </TouchableOpacity>
           <Text style={styles.headerText}>Register</Text>
@@ -198,79 +185,47 @@ const RegisterScreen = () => {
         <View style={styles.form}>
           <View style={styles.inputRow}>
             <View style={styles.halfInput}>
-              <FloatingLabelInput
-                label="First name"
-                value={firstName}
-                onChangeText={setFirstName}
-              />
+              <FloatingLabelInput label="First name" value={firstName} onChangeText={setFirstName} />
             </View>
             <View style={styles.halfInput}>
-              <FloatingLabelInput
-                label="Last name"
-                value={lastName}
-                onChangeText={setLastName}
-              />
+              <FloatingLabelInput label="Last name" value={lastName} onChangeText={setLastName} />
             </View>
           </View>
 
-          <FloatingLabelInput
-            label="Email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-          />
+          <FloatingLabelInput label="Email" value={email} onChangeText={setEmail} keyboardType="email-address" />
 
           <View style={styles.inputRow}>
             <View style={styles.halfInput}>
-              <FloatingLabelInput
-                label="State"
-                value={state}
-                onChangeText={setState}
-              />
+              <FloatingLabelInput label="State" value={state} onChangeText={setState} />
             </View>
             <View style={styles.halfInput}>
-              <FloatingLabelInput
-                label="City"
-                value={city}
-                onChangeText={setCity}
-              />
+              <FloatingLabelInput label="City" value={city} onChangeText={setCity} />
             </View>
           </View>
 
-          <FloatingLabelInput
-            label="Address"
-            value={address}
-            onChangeText={setAddress}
-          />
-
-          <FloatingLabelInput
-            label="Phone"
-            value={phone}
-            onChangeText={setPhone}
-            keyboardType="phone-pad"
-          />
+          <FloatingLabelInput label="Address" value={address} onChangeText={setAddress} />
+          <FloatingLabelInput label="Phone" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
+          <FloatingLabelInput label="Password" value={password} onChangeText={setPassword} secureTextEntry={true} keyboardType="default" />
+          <FloatingLabelInput label="Confirm Password" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry={true} keyboardType="default" />
 
           <View style={styles.pickerContainer}>
-            <SelectList
-              setSelected={(val) => setSelected(val)}
-              data={data}
-              save="value"
-              search={false}
-              placeholder="Select Role"
-              fontFamily="Poppins_400Regular"
-            />
+            <SelectList setSelected={(val) => setSelected(val)} data={data} save="value" search={false} placeholder="Select Role" fontFamily="Poppins_400Regular" />
           </View>
 
-          <TouchableOpacity style={styles.button} onPress={handleNext}>
-            <Text style={styles.buttonText}>Next</Text>
+          {/* Error message displayed here */}
+          {errorMessage ? <Text style={styles.errorMessage}>{errorMessage}</Text> : null}
+
+          <TouchableOpacity style={styles.button} onPress={handleSubmit} disabled={isLoading}>
+            {isLoading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Register</Text>
+            )}
           </TouchableOpacity>
 
           <Text style={styles.footerText}>
             Already have an account?{" "}
-            <Text
-              style={styles.linkText}
-              onPress={() => navigation.navigate("login")}
-            >
+            <Text style={styles.linkText} onPress={() => router.push("/login")}>
               Sign In
             </Text>
           </Text>
@@ -279,7 +234,6 @@ const RegisterScreen = () => {
     </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
@@ -379,6 +333,11 @@ const styles = StyleSheet.create({
   linkText: {
     color: "#00C853",
     fontWeight: "bold",
+  },
+  errorMessage: {
+    color: "red",
+    textAlign: "center",
+    marginBottom: 10,
   },
 });
 

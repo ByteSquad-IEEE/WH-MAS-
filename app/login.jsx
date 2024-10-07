@@ -10,6 +10,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from "react-native";
 
 import {
@@ -69,10 +70,12 @@ const FloatingLabelInput = ({ label, value, onChangeText, keyboardType }) => {
 };
 
 const LoginScreen = () => {
-  const router = useRouter()
+  const router = useRouter();
   const navigation = useNavigation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false); 
+  const [error, setError] = useState(null); 
 
   let [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -84,6 +87,42 @@ const LoginScreen = () => {
       await SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      setError("Please enter both email and password.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("https://whmas-admin.vercel.app/wh-mas/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setLoading(false);
+        router.push("/dashboard");
+      } else {
+        setLoading(false);
+        setError(data.message || "Login failed. Please try again.");
+      }
+    } catch (error) {
+      setLoading(false);
+      setError("An unexpected error occurred. Please try again.");
+    }
+  };
 
   if (!fontsLoaded) {
     return null;
@@ -120,14 +159,20 @@ const LoginScreen = () => {
 
         <FloatingLabelInput
           label="Password"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="password"
+          value={password}
+          onChangeText={setPassword}
+          keyboardType="default"
         />
 
-        <TouchableOpacity style={styles.button} onPress={() => router.push("/dashboard")}>
-          <Text style={styles.buttonText}>Next</Text>
-        </TouchableOpacity>
+        {error && <Text style={styles.errorText}>{error}</Text>}
+
+        {loading ? (
+          <ActivityIndicator size="large" color="#00C853" />
+        ) : (
+          <TouchableOpacity style={styles.button} onPress={handleLogin}>
+            <Text style={styles.buttonText}>Next</Text>
+          </TouchableOpacity>
+        )}
 
         <Text style={styles.footerText}>
           Don't have an account?{" "}
@@ -198,32 +243,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     fontFamily: "Poppins_400Regular",
   },
-  buttonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontFamily: "Poppins_400Regular",
-  },
-  inputRow: {
-    flexDirection: "row",
-  },
-  halfInput: {
-    flex: 1,
-    paddingRight: 10,
-  },
-  pickerContainer: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#727272",
-    marginBottom: 15,
-    backgroundColor: "#fff",
-  },
-  picker: {
-    height: 50,
-    width: "100%",
-    fontFamily: "Poppins_400Regular",
-  },
-  pickerItem: {
-    fontFamily: "Poppins_400Regular",
-  },
   button: {
     backgroundColor: "#00C853",
     paddingVertical: 12,
@@ -235,6 +254,11 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
+    fontFamily: "Poppins_400Regular",
+  },
+  errorText: {
+    color: "red",
+    marginBottom: 15,
     fontFamily: "Poppins_400Regular",
   },
   footerText: {
