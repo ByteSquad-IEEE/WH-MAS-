@@ -78,7 +78,7 @@ const LoginScreen = () => {
   const [loading, setLoading] = useState(false); 
   const [error, setError] = useState(null); 
 
-  const base_url = "https://whmas-admin.vercel.app";  // Base URL
+  const base_url = "https://whmas-admin.vercel.app"; 
 
   let [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -91,7 +91,6 @@ const LoginScreen = () => {
     }
   }, [fontsLoaded]);
 
-  // Save email to AsyncStorage on successful login
   const saveEmailToStorage = async (email) => {
     try {
       await AsyncStorage.setItem("userEmail", email);
@@ -105,11 +104,12 @@ const LoginScreen = () => {
       setError("Please enter both email and password.");
       return;
     }
-
+  
     setLoading(true);
     setError(null);
-
+  
     try {
+      console.log("Sending login request...");
       const response = await fetch(`${base_url}/wh-mas/api/login`, {
         method: "POST",
         headers: {
@@ -120,24 +120,27 @@ const LoginScreen = () => {
           password,
         }),
       });
-
+  
+      console.log("Response status:", response.status);
+  
       const data = await response.json();
-
+      console.log("Response data:", data);
+  
       if (response.ok) {
         setLoading(false);
-        // Save the email to AsyncStorage (local storage)
         await saveEmailToStorage(email);
-        router.push("/dashboard"); // Navigate to the dashboard on success
+        router.push("/dashboard");
       } else {
         setLoading(false);
         setError(data.message || "Login failed. Please try again.");
       }
     } catch (error) {
       setLoading(false);
+      console.error("Fetch error:", error); 
       setError("An unexpected error occurred. Please try again.");
     }
   };
-
+  
   if (!fontsLoaded) {
     return null;
   }
@@ -176,7 +179,7 @@ const LoginScreen = () => {
           value={password}
           onChangeText={setPassword}
           keyboardType="default"
-          secureTextEntry={true}  // Enable secure text entry for password
+          secureTextEntry={true} 
         />
 
         {error && <Text style={styles.errorText}>{error}</Text>}
