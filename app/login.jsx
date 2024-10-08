@@ -85,6 +85,7 @@ const LoginScreen = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [id, setId] = useState("");
 
   const base_url = "https://whmas-admin.vercel.app";
 
@@ -99,64 +100,114 @@ const LoginScreen = () => {
     }
   }, [fontsLoaded]);
 
-  const saveEmailToStorage = async (email) => {
+  const storeUserData = async (userData) => {
     try {
-      await AsyncStorage.setItem("userEmail", email);
+      await AsyncStorage.setItem("userData", JSON.stringify(userData));
+      console.log("User data stored successfully");
     } catch (error) {
-      console.error("Failed to save email to storage:", error);
+      console.error("Error storing user data:", error);
     }
   };
 
-const handleLogin = async () => {
-  if (!email || !password) {
-    setError("Please enter both email and password.");
-    return;
-  }
+  const getUserData = async () => {
+    try {
+      const userData = await AsyncStorage.getItem("userData");
+      if (userData !== null) {
+        const user = JSON.parse(userData);
+        console.log("User data:", user);
+        return user;
+      } else {
+        console.log("No user data found");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error retrieving user data:", error);
+    }
+  };
 
-  setLoading(true);
-  setError(null);
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const user = await getUserData();
+      if (user) {
+        setId(user.id);
+      }
+    };
 
-  try {
-    console.log("Sending login request...", email, password);
-    const response = await axios.post(`${base_url}/wh-mas/api/login`, {
-      email,
-      password,
-    });
+    fetchUserData();
+  }, []);
 
-    if (response.status === 200) {
-      const resData = response.data;
-      await AsyncStorage.setItem("userId", resData.message.success.id);
-      router.push("/dashboard");
-      Toast.show({
-        text1: "Login successful",
+  const handleLogin = async () => {
+    if (!email || !password) {
+      setError("Please enter both email and password.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      console.log("Sending login request...", email, password);
+      const response = await axios.post(`${base_url}/wh-mas/api/login`, {
+        email,
+        password,
       });
-      console.log("Response status:", response.status);
-      console.log("Response Data:", resData);
-    } else {
-      setError("Invalid login credentials. Please try again.");
+
+      if (response.status === 200) {
+        const resData = response.data;
+        const wallet_balance = resData.message.success.wallet_balance;
+        const phone_number = resData.message.success.phone_number;
+        const password = resData.message.success.password;
+        const first_name = resData.message.success.first_name;
+        const last_name = resData.message.success.last_name;
+        const city = resData.message.success.city;
+        const address = resData.message.success.address;
+        const state = resData.message.success.state;
+        const id = resData.message.success.id;
+
+        const userData = {
+          email,
+          password,
+          wallet_balance,
+          phone_number,
+          first_name,
+          last_name,
+          address,
+          city,
+          state,
+          id,
+        };
+        storeUserData(userData);
+        router.push("/dashboard");
+        Toast.show({
+          text1: "Login successful",
+        });
+        console.log("Response status:", response.status);
+        console.log("Response Data:", resData);
+      } else {
+        setError("Invalid login credentials. Please try again.");
+      }
+    } catch (error) {
+      if (error.response) {
+        console.error("Response error:", error.response.data);
+        setError(
+          error.response.data.message || "Login failed. Please try again."
+        );
+      } else if (error.request) {
+        console.error("Request error:", error.request);
+        setError("No response from the server. Please check your connection.");
+      } else {
+        console.error("Post error:", error.message);
+        setError("An unexpected error occurred. Please try again.");
+      }
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    if (error.response) {
-      console.error("Response error:", error.response.data);
-      setError(
-        error.response.data.message || "Login failed. Please try again."
-      );
-    } else if (error.request) {
-      console.error("Request error:", error.request);
-      setError("No response from the server. Please check your connection.");
-    } else {
-      console.error("Post error:", error.message);
-      setError("An unexpected error occurred. Please try again.");
-    }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const checkLoginStatus = async () => {
-    const token = await AsyncStorage.getItem("userId");
-    if (token) {
+    if (id) {
       router.push("/dashboard");
+      console.log(id)
     }
   };
 

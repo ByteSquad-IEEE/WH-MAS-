@@ -7,34 +7,33 @@ import TopBarBtn from "./TopBarBtn";
 const ProfileInfo = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+
+  const getUserData = async () => {
+    try {
+      const userData = await AsyncStorage.getItem("userData");
+      if (userData !== null) {
+        const user = JSON.parse(userData);
+        console.log("User data:", user);
+        return user;
+      } else {
+        console.log("No user data found");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error retrieving user data:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchFirstName = async () => {
-      try {
-        const storedFirstName = await AsyncStorage.getItem("firstName");
-        if (storedFirstName) {
-          setFirstName(storedFirstName);
-        }
-      } catch (error) {
-        console.error("Error fetching firstName:", error);
+    const fetchUserData = async () => {
+      const user = await getUserData();
+      if (user) {
+        setFirstName(user.first_name);
+        setLastName(user.last_name);
       }
     };
 
-    fetchFirstName();
-  }, []);
-
-  useEffect(() => {
-    const fetchLastName = async () => {
-      try {
-        const storedLastName = await AsyncStorage.getItem("lastName");
-        if (storedLastName) {
-          setLastName(storedLastName);
-        }
-      } catch (error) {
-        console.error("Error fetching firstname:", error);
-      }
-    };
-
-    fetchLastName();
+    fetchUserData();
   }, []);
   return (
     <View className="pt-8 px-4 flex flex-row justify-between">

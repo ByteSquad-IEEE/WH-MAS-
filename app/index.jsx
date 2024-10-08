@@ -15,42 +15,52 @@ import {
   useFonts,
 } from "@expo-google-fonts/poppins";
 import * as SplashScreen from "expo-splash-screen";
-
-// Skipp - React Native Auth0 integration
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Auth0 from "react-native-auth0";
 
-const auth0 = new Auth0({
-  domain: "dev-b5g4d5rsurrmubie.us.auth0.com",
-  clientId: "cUB1ixYLTVpKsVMVmIbh3U1TNBOPGqcO",
-});
-
+// Prevent the splash screen from auto-hiding
 // SplashScreen.preventAutoHideAsync();
 
 const Start = () => {
   const navigation = useNavigation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [id, setId] = useState(null); // Initially set to null, not true
 
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_700Bold,
   });
 
+  // Function to get user data from AsyncStorage
+  const getUserData = async () => {
+    try {
+      const userData = await AsyncStorage.getItem("userData");
+      if (userData) {
+        const user = JSON.parse(userData);
+        console.log("User data:", user);
+        return user;
+      } else {
+        console.log("No user data found");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error retrieving user data:", error);
+      return null;
+    }
+  };
+
   useEffect(() => {
     const checkLoginStatus = async () => {
-      try {
-        const userId = await AsyncStorage.getItem("userId");
-
-        if (userId) {
-          setIsLoggedIn(true);
-          router.push("dashboard");
-        }
-      } catch (error) {
-        console.log("Error checking login status:", error);
-      } finally {
-        setLoading(false);
+      const user = await getUserData();
+      if (user && user.id) {
+        setId(user.id);
+        setIsLoggedIn(true);
+        console.log("User is logged in, ID:", user.id);
+        router.push("/dashboard");
+      } else {
+        setIsLoggedIn(false);
       }
+      setLoading(false);
     };
 
     checkLoginStatus();
@@ -62,11 +72,7 @@ const Start = () => {
     }
   }, [fontsLoaded]);
 
-  if (!fontsLoaded) {
-    return null;
-  }
-
-  if (loading) {
+  if (!fontsLoaded || loading) {
     return (
       <View style={styles.centerContainer}>
         <ActivityIndicator size="large" color="#00C853" />
@@ -81,7 +87,6 @@ const Start = () => {
         style={styles.backgroundImage}
       >
         <View style={styles.overlay} />
-
         <Text style={styles.title}>WMHAS</Text>
         <View style={styles.welcomeContainer}>
           <Text style={styles.welcomeText}>Welcome</Text>
@@ -89,7 +94,6 @@ const Start = () => {
             Turn Waste into value. Buy, sell, and help create a waste-free
             world.
           </Text>
-
           <TouchableOpacity
             style={styles.loginButton}
             onPress={() => navigation.navigate("login")}
@@ -132,7 +136,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: "white",
     right: 20,
-    fontFamily: "Poppins_700Bold", // Changed to bold
+    fontFamily: "Poppins_700Bold",
   },
   welcomeContainer: {
     width: "100%",

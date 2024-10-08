@@ -1,7 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import BottomSheet, { BottomSheetBackdrop } from "@gorhom/bottom-sheet";
 import { Portal } from "@gorhom/portal";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import { router } from "expo-router";
+import React, { useCallback, useMemo, useRef } from "react";
 import {
   FlatList,
   Image,
@@ -48,11 +49,18 @@ const TopBarBtn = ({ isNotificationShown, style }) => {
     </View>
   );
 
+  const showNotification = () => {
+    router.push("notifications");
+  };
+
   return (
     <>
       <View className="flex flex-row gap-2" style={style}>
         {isNotificationShown && (
-          <TouchableOpacity className="bg-gray-100 w-[42px] h-[42px] rounded-full flex items-center justify-center">
+          <TouchableOpacity
+            className="bg-gray-100 w-[42px] h-[42px] rounded-full flex items-center justify-center"
+            onPress={showNotification}
+          >
             <Ionicons name="notifications-outline" size={25} />
           </TouchableOpacity>
         )}

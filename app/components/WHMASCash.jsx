@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 
 import React, { useEffect, useState } from "react";
@@ -7,29 +8,34 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 
 const WHMASCash = () => {
-  const [walletBalance, setWalletBalance] = useState([]);
+  const [walletBalance, setWalletBalance] = useState("");
 
-  const getWalletBalance = async() => {
-    const base_url = "https://whmas-admin.vercel.app";
-    try {
-      const user_email = "davidnzube2007@gmail.com" // Get actual user email
-      const response = await axios.get(
-        `${base_url}/wh-mas/api/get-wallet-value/${user_email}`
-      );
-
-      if (response.data.message.success) {
-        const walletBalance = response.data.message.success
-        setWalletBalance(walletBalance);
-      } else {
-        setError("No data available");
+    const getUserData = async () => {
+      try {
+        const userData = await AsyncStorage.getItem("userData");
+        if (userData !== null) {
+          const user = JSON.parse(userData);
+          console.log("User data:", user);
+          return user;
+        } else {
+          console.log("No user data found");
+          return null;
+        }
+      } catch (error) {
+        console.error("Error retrieving user data:", error);
       }
-    } catch (error) {
-      console.log("Error fetching Data", error);
-      setError("Failed to fetch waste list");
-    } finally {
-      setLoading(false);
-    }
-  }
+    };
+
+    useEffect(() => {
+      const fetchUserData = async () => {
+        const user = await getUserData();
+        if (user) {
+          setWalletBalance(user.wallet_balance);
+        }
+      };
+
+      fetchUserData();
+    }, []);
 
   return (
     <View className="px-4 mt-14">

@@ -1,4 +1,5 @@
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -14,7 +15,10 @@ const QuickActions = () => {
         </TouchableOpacity>
       </View>
       <View className="p-2">
-        <TouchableOpacity className="flex items-center">
+        <TouchableOpacity
+          className="flex items-center"
+          onPress={() => router.push("/inventory")}
+        >
           <View className="bg-[#53e88c42] p-2 rounded-md">
             <Ionicons name="archive" size={40} color="#1DB954" />
           </View>
@@ -22,15 +26,21 @@ const QuickActions = () => {
         </TouchableOpacity>
       </View>
       <View className="p-2">
-        <TouchableOpacity className="flex items-center">
+        <TouchableOpacity
+          className="flex items-center"
+          onPress={() => router.push("/buy")}
+        >
           <View className="bg-[#53e88c42] p-2 rounded-md">
-            <Ionicons name="swap-horizontal" size={39} color="#1DB954" />
+            <Ionicons name="cart" size={39} color="#1DB954" />
           </View>
           <Text className="mt-1 font-bold text-xs">Marketplace</Text>
         </TouchableOpacity>
       </View>
       <View className="p-2">
-        <TouchableOpacity className="flex items-center">
+        <TouchableOpacity
+          className="flex items-center"
+          onPress={() => router.push("/delivery")}
+        >
           <View className="bg-[#53e88c42] p-2 rounded-md">
             <FontAwesome name="truck" size={40} color="#1DB954" />
           </View>

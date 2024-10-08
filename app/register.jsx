@@ -23,6 +23,7 @@ import {
 } from "react-native";
 import { SelectList } from "react-native-dropdown-select-list";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
 // SplashScreen.preventAutoHideAsync();
 
@@ -116,6 +117,15 @@ const RegisterScreen = () => {
 
   const base_url = "https://whmas-admin.vercel.app";
 
+  const storeUserData = async (userData) => {
+    try {
+      await AsyncStorage.setItem("userData", JSON.stringify(userData));
+      console.log("User data stored successfully");
+    } catch (error) {
+      console.error("Error storing user data:", error);
+    }
+  };
+
   const handleSubmit = async () => {
     setErrorMessage("");
     if (
@@ -175,17 +185,34 @@ const RegisterScreen = () => {
       });
 
       const resData = response.data;
-      console.log(resData)
+      const walletBalance = resData.message.success.wallet_balance;
+      const city = resData.message.success.city
+      const address = resData.message.success.address
+      const state = resData.message.success.state
+      const id = resData.message.success.id
+      console.log(resData);
       setIsLoading(false);
       if (resData.status === "failed") {
         setErrorMessage(resData.message);
       } else {
-        await AsyncStorage.setItem("userId", resData.message.success.id);
-        await AsyncStorage.setItem("firstName", resData.message.success.first_name);
-        await AsyncStorage.setItem("lastName", resData.message.success.last_name);
-        await AsyncStorage.setItem("UserEmail", resData.message.success.email);
-        await AsyncStorage.setItem("walletBalance", resData.message.success.wallet_balance);
-        Alert.alert("Success", "Registration completed successfully!");
+        const userData = {
+          firstName,
+          lastName,
+          email,
+          phone,
+          password,
+          confirmPassword,
+          walletBalance,
+          address,
+          city,
+          state,
+          id
+        };
+        storeUserData(userData);
+        Toast.show({
+          text1: "Success",
+          text2: "Registration completed successfully",
+        });
         router.push("/verifyOtp");
       }
     } catch (error) {

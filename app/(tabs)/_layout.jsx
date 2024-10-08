@@ -58,6 +58,7 @@ const TabsLayout = () => {
             tabBarIcon: ({ color, focused }) => (
               <TabIcon icon="cart" color={color} name="Buy" focused={focused} />
             ),
+            tabBarHideOnKeyboard: true,
           }}
         />
         <Tabs.Screen

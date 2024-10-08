@@ -15,7 +15,10 @@ const RecentTransactions = () => {
       >
         <View className="flex items-center justify-center mt-3">
           <TransactionImg width={100} height={100} className="" />
-          <Text className="text-gray-400 font-medium text-center px-6">No Transaction made yet! Buy or Sell waste to see your recent transactions</Text>
+          <Text className="text-gray-400 font-medium text-center px-5">
+            No Transaction made yet! Start buying or selling waste to track your
+            recent transactions.
+          </Text>
         </View>
       </ScrollView>
     </View>

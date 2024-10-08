@@ -1,13 +1,13 @@
+import { PortalProvider } from "@gorhom/portal";
 import { Stack } from "expo-router";
 import React from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Toast from "react-native-toast-message";
-import { PortalProvider } from "@gorhom/portal";
 import { CartProvider } from "./CartContext";
 
 const _layout = () => {
   return (
-<CartProvider>
+    <CartProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <PortalProvider>
           <Stack>
@@ -21,11 +21,17 @@ const _layout = () => {
             />
             <Stack.Screen name="verifyOtp" options={{ headerShown: false }} />
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="notifications"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen name="inventory" options={{ headerShown: false }} />
+            <Stack.Screen name="delivery" options={{ headerShown: false }} />
           </Stack>
           <Toast />
         </PortalProvider>
       </GestureHandlerRootView>
-</CartProvider>
+    </CartProvider>
   );
 };
 
