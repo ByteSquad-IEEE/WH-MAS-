@@ -3,10 +3,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
 import axios from "axios";
 import * as FileSystem from "expo-file-system";
+import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import * as ImageManipulator from "expo-image-manipulator";
 import {
   ActivityIndicator,
   Image,
@@ -30,7 +30,6 @@ const Sell = () => {
   const [price, setPrice] = useState("");
   const [images, setImages] = useState([]);
   const [location, setLocation] = useState("");
-  const [contact, setContact] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userId, setUserId] = useState(null);
 
@@ -74,21 +73,20 @@ const Sell = () => {
     checkId();
   }, []);
 
-const optimizeImage = async (uri) => {
-  try {
-    const manipulateResult = await ImageManipulator.manipulateAsync(
-      uri,
-      [{ resize: { width: 1000 } }],
-      { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
-    );
-    return manipulateResult.uri;
-  } catch (error) {
-    console.error("Error optimizing image:", error);
-    // Return original URI if optimization fails
-    return uri;
-  }
-};
-
+  const optimizeImage = async (uri) => {
+    try {
+      const manipulateResult = await ImageManipulator.manipulateAsync(
+        uri,
+        [{ resize: { width: 1000 } }],
+        { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+      );
+      return manipulateResult.uri;
+    } catch (error) {
+      console.error("Error optimizing image:", error);
+      // Return original URI if optimization fails
+      return uri;
+    }
+  };
 
   const convertImageToBase64 = async (uri) => {
     try {
@@ -192,7 +190,7 @@ const optimizeImage = async (uri) => {
       const base_url = "https://whmas-admin.vercel.app";
       const response = await axios.post(
         `${base_url}/wh-mas/api/create-product-ad`,
-        apiData,
+        apiData
       );
       console.log(response.data);
       Toast.show({
@@ -203,12 +201,12 @@ const optimizeImage = async (uri) => {
 
       router.push("/inventory");
     } catch (error) {
-        console.error("Error creating ad:", error);
-        Toast.show({
-          type: "error",
-          text1: "Error",
-          text2: error.response?.data?.message || "Failed to create ad",
-        });
+      console.error("Error creating ad:", error);
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: error.response?.data?.message || "Failed to create ad",
+      });
     } finally {
       setIsSubmitting(false);
     }

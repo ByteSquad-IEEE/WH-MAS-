@@ -48,6 +48,7 @@ const TabsLayout = () => {
                 focused={focused}
               />
             ),
+            tabBarHideOnKeyboard: true,
           }}
         />
         <Tabs.Screen
@@ -74,6 +75,7 @@ const TabsLayout = () => {
                 focused={focused}
               />
             ),
+            tabBarHideOnKeyboard: true,
           }}
         ></Tabs.Screen>
         <Tabs.Screen
@@ -89,6 +91,7 @@ const TabsLayout = () => {
                 focused={focused}
               />
             ),
+            tabBarHideOnKeyboard: true,
           }}
         />
         <Tabs.Screen
@@ -104,6 +107,7 @@ const TabsLayout = () => {
                 focused={focused}
               />
             ),
+            tabBarHideOnKeyboard: true,
           }}
         />
       </Tabs>

@@ -46,14 +46,8 @@ const DeliveryScreen = () => {
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case "ongoing":
+      case "success":
         return <MaterialIcons name="pending" size={24} color="#1DB954" />;
-      case "done":
-        return (
-          <Ionicons name="checkmark-circle-outline" size={20} color="#4CAF50" />
-        );
-      case "not started":
-        return <Ionicons name="hourglass-outline" size={20} color="#FFA726" />;
       default:
         return (
           <Ionicons name="help-circle-outline" size={20} color="#757575" />
