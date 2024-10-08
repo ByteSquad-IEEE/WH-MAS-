@@ -14,8 +14,6 @@ import {
   Alert,
   Animated,
   ImageBackground,
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -25,7 +23,6 @@ import {
 } from "react-native";
 import { SelectList } from "react-native-dropdown-select-list";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Toast from "react-native-toast-message";
 
 // SplashScreen.preventAutoHideAsync();
 
@@ -119,15 +116,6 @@ const RegisterScreen = () => {
 
   const base_url = "https://whmas-admin.vercel.app";
 
-  const storeUserData = async (userData) => {
-    try {
-      await AsyncStorage.setItem("userData", JSON.stringify(userData));
-      console.log("User data stored successfully");
-    } catch (error) {
-      console.error("Error storing user data:", error);
-    }
-  };
-
   const handleSubmit = async () => {
     setErrorMessage("");
     if (
@@ -187,34 +175,17 @@ const RegisterScreen = () => {
       });
 
       const resData = response.data;
-      const walletBalance = resData.message.success.wallet_balance;
-      const city = resData.message.success.city;
-      const address = resData.message.success.address;
-      const state = resData.message.success.state;
-      const id = resData.message.success.id;
-      console.log(resData);
+      console.log(resData)
       setIsLoading(false);
       if (resData.status === "failed") {
         setErrorMessage(resData.message);
       } else {
-        const userData = {
-          firstName,
-          lastName,
-          email,
-          phone,
-          password,
-          confirmPassword,
-          walletBalance,
-          address,
-          city,
-          state,
-          id,
-        };
-        storeUserData(userData);
-        Toast.show({
-          text1: "Success",
-          text2: "Registration completed successfully",
-        });
+        await AsyncStorage.setItem("userId", resData.message.success.id);
+        await AsyncStorage.setItem("firstName", resData.message.success.first_name);
+        await AsyncStorage.setItem("lastName", resData.message.success.last_name);
+        await AsyncStorage.setItem("UserEmail", resData.message.success.email);
+        await AsyncStorage.setItem("walletBalance", resData.message.success.wallet_balance);
+        Alert.alert("Success", "Registration completed successfully!");
         router.push("/verifyOtp");
       }
     } catch (error) {
@@ -226,136 +197,128 @@ const RegisterScreen = () => {
 
   return (
     <SafeAreaView>
-      <KeyboardAvoidingView
-        // style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      <ScrollView
+        contentContainerStyle={styles.container}
+        onLayout={onLayoutRootView}
       >
-        <ScrollView
-          contentContainerStyle={styles.container}
-          onLayout={onLayoutRootView}
+        <ImageBackground
+          source={require("../assets/authBgPatternImg.png")}
+          style={styles.header}
         >
-          <ImageBackground
-            source={require("../assets/authBgPatternImg.png")}
-            style={styles.header}
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
           >
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => router.back()}
-            >
-              <Ionicons name="arrow-back" size={30} color="white" />
-            </TouchableOpacity>
-            <Text style={styles.headerText}>Register</Text>
-            <Text style={styles.subHeaderText}>Create your WHMAS account.</Text>
-          </ImageBackground>
+            <Ionicons name="arrow-back" size={30} color="white" />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>Register</Text>
+          <Text style={styles.subHeaderText}>Create your WHMAS account.</Text>
+        </ImageBackground>
 
-          <View style={styles.form}>
-            <View style={styles.inputRow}>
-              <View style={styles.halfInput}>
-                <FloatingLabelInput
-                  label="First name"
-                  value={firstName}
-                  onChangeText={setFirstName}
-                />
-              </View>
-              <View style={styles.halfInput}>
-                <FloatingLabelInput
-                  label="Last name"
-                  value={lastName}
-                  onChangeText={setLastName}
-                />
-              </View>
-            </View>
-
-            <FloatingLabelInput
-              label="Email"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-            />
-
-            <View style={styles.inputRow}>
-              <View style={styles.halfInput}>
-                <FloatingLabelInput
-                  label="State"
-                  value={state}
-                  onChangeText={setState}
-                />
-              </View>
-              <View style={styles.halfInput}>
-                <FloatingLabelInput
-                  label="City"
-                  value={city}
-                  onChangeText={setCity}
-                />
-              </View>
-            </View>
-
-            <FloatingLabelInput
-              label="Address"
-              value={address}
-              onChangeText={setAddress}
-            />
-            <FloatingLabelInput
-              label="Phone"
-              value={phone}
-              onChangeText={setPhone}
-              keyboardType="phone-pad"
-            />
-            <FloatingLabelInput
-              label="Password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={true}
-              keyboardType="default"
-            />
-            <FloatingLabelInput
-              label="Confirm Password"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry={true}
-              keyboardType="default"
-            />
-
-            <View style={styles.pickerContainer}>
-              <SelectList
-                setSelected={(val) => setSelected(val)}
-                data={data}
-                save="value"
-                search={false}
-                placeholder="Select Role"
-                fontFamily="Poppins_400Regular"
+        <View style={styles.form}>
+          <View style={styles.inputRow}>
+            <View style={styles.halfInput}>
+              <FloatingLabelInput
+                label="First name"
+                value={firstName}
+                onChangeText={setFirstName}
               />
             </View>
-
-            {/* Error message displayed here */}
-            {errorMessage ? (
-              <Text style={styles.errorMessage}>{errorMessage}</Text>
-            ) : null}
-
-            <TouchableOpacity
-              style={styles.button}
-              onPress={handleSubmit}
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <Text style={styles.buttonText}>Register</Text>
-              )}
-            </TouchableOpacity>
-
-            <Text style={styles.footerText}>
-              Already have an account?{" "}
-              <Text
-                style={styles.linkText}
-                onPress={() => router.push("/login")}
-              >
-                Sign In
-              </Text>
-            </Text>
+            <View style={styles.halfInput}>
+              <FloatingLabelInput
+                label="Last name"
+                value={lastName}
+                onChangeText={setLastName}
+              />
+            </View>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+
+          <FloatingLabelInput
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+          />
+
+          <View style={styles.inputRow}>
+            <View style={styles.halfInput}>
+              <FloatingLabelInput
+                label="State"
+                value={state}
+                onChangeText={setState}
+              />
+            </View>
+            <View style={styles.halfInput}>
+              <FloatingLabelInput
+                label="City"
+                value={city}
+                onChangeText={setCity}
+              />
+            </View>
+          </View>
+
+          <FloatingLabelInput
+            label="Address"
+            value={address}
+            onChangeText={setAddress}
+          />
+          <FloatingLabelInput
+            label="Phone"
+            value={phone}
+            onChangeText={setPhone}
+            keyboardType="phone-pad"
+          />
+          <FloatingLabelInput
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={true}
+            keyboardType="default"
+          />
+          <FloatingLabelInput
+            label="Confirm Password"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry={true}
+            keyboardType="default"
+          />
+
+          <View style={styles.pickerContainer}>
+            <SelectList
+              setSelected={(val) => setSelected(val)}
+              data={data}
+              save="value"
+              search={false}
+              placeholder="Select Role"
+              fontFamily="Poppins_400Regular"
+            />
+          </View>
+
+          {/* Error message displayed here */}
+          {errorMessage ? (
+            <Text style={styles.errorMessage}>{errorMessage}</Text>
+          ) : null}
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleSubmit}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Register</Text>
+            )}
+          </TouchableOpacity>
+
+          <Text style={styles.footerText}>
+            Already have an account?{" "}
+            <Text style={styles.linkText} onPress={() => router.push("/login")}>
+              Sign In
+            </Text>
+          </Text>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -401,10 +364,6 @@ const styles = StyleSheet.create({
     padding: 20,
     marginHorizontal: 20,
     elevation: 5,
-    shadowColor: "#171717",
-    shadowOffset: { width: -2, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
     width: "90%",
   },
   input: {
