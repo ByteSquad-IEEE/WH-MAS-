@@ -9,6 +9,18 @@ export function CartProvider({ children }) {
   const [cartTotal, setCartTotal] = useState(0);
   const [productIds, setProductIds] = useState([]); // Initialize as string "[]"
 
+  const clearCart = useCallback(async () => {
+    try {
+      await AsyncStorage.removeItem("cart");
+      setCartItems([]);
+      setCartCount(0);
+      setCartTotal(0);
+      setProductIds([]); // Reset product IDs
+    } catch (error) {
+      console.error("Error clearing cart:", error);
+    }
+  }, []);
+
   const updateCart = useCallback(async () => {
     try {
       const cartJSON = await AsyncStorage.getItem("cart");
@@ -36,7 +48,14 @@ export function CartProvider({ children }) {
 
   return (
     <CartContext.Provider
-      value={{ cartItems, cartCount, updateCart, cartTotal, productIds }}
+      value={{
+        cartItems,
+        cartCount,
+        updateCart,
+        cartTotal,
+        productIds,
+        clearCart,
+      }}
     >
       {children}
     </CartContext.Provider>

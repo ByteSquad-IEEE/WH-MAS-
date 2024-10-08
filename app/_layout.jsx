@@ -28,6 +28,7 @@ const _layout = () => {
             <Stack.Screen name="inventory" options={{ headerShown: false }} />
             <Stack.Screen name="delivery" options={{ headerShown: false }} />
             <Stack.Screen name="transaction" options={{ headerShown: false }} />
+            <Stack.Screen name="paymentwebview" options={{ headerShown: false }} />
           </Stack>
           <Toast />
         </PortalProvider>

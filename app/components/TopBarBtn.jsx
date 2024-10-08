@@ -22,7 +22,8 @@ import {
 import { useCart } from "../CartContext";
 
 const TopBarBtn = ({ isNotificationShown, style }) => {
-  const { cartItems, cartCount, updateCart, cartTotal, productIds } = useCart();
+  const { cartItems, cartCount, updateCart, cartTotal, productIds, clearCart } =
+    useCart();
   const [userId, setUserId] = useState(null);
   // ref
   const bottomSheetRef = useRef(null);
@@ -99,19 +100,29 @@ const TopBarBtn = ({ isNotificationShown, style }) => {
       const response = await axios.post(`${base_url}/wh-mas/api/checkout`, {
         amount: cartTotal,
         user_id: userId,
-        product_list: JSON.stringify(productIds), // This is already a string containing the array
+        product_list: JSON.stringify(productIds),
       });
       const resData = response.data;
-      const paymentUrl = resData.message.success.payment_link
+      const paymentUrl = resData.message.success.payment_link;
 
-      const appendLink = `${base_url}${paymentUrl}`
-      console.log("paymentLink:", appendLink);
+      const fullPaymentLink = `${base_url}${paymentUrl}`;
+      console.log("paymentLink:", fullPaymentLink);
 
-      console.log("Sent product IDs (string):", productIds); // For debugging
+      router.push({
+        pathname: "/paymentwebview",
+        params: {
+          paymentLink: fullPaymentLink,
+        },
+      });
     } catch (error) {
       console.error("Error during checkout:", error);
     }
   };
+
+  const handleClearCart = useCallback(() => {
+    clearCart();
+    bottomSheetRef.current?.close();
+  }, [clearCart]);
 
   return (
     <>
@@ -157,7 +168,9 @@ const TopBarBtn = ({ isNotificationShown, style }) => {
                     keyExtractor={(item) => item.id.toString()}
                     contentContainerStyle={styles.cartList}
                   />
-                  <Text className="font-semibold text-2xl">Total Price: NGN. {cartTotal}</Text>
+                  <Text className="font-semibold text-2xl">
+                    Total Price: NGN. {cartTotal}
+                  </Text>
                 </>
               ) : (
                 <Text style={styles.emptyCartText}>Your cart is empty</Text>
@@ -172,6 +185,17 @@ const TopBarBtn = ({ isNotificationShown, style }) => {
                 >
                   Checkout
                 </Text>
+              </TouchableOpacity>
+
+              {/* Clear Cart Button */}
+              <TouchableOpacity
+                style={[
+                  styles.checkoutButton,
+                  { backgroundColor: "#FF3E3E", marginTop: 10 },
+                ]}
+                onPress={handleClearCart}
+              >
+                <Text style={styles.checkoutButtonText}>Clear Cart</Text>
               </TouchableOpacity>
             </View>
           </View>
