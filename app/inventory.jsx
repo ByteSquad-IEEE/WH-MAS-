@@ -23,7 +23,7 @@ const Inventory = () => {
           Your inventory is currently empty. Create an ad to start adding items
           and manage your listings.
         </Text>
-        <TouchableOpacity className="mt-8 bg-primary rounded-full flex items-center flex-row  px-2 py-1">
+        <TouchableOpacity className="mt-8 bg-primary rounded-full flex items-center flex-row  px-2 py-1" onPress={() => router.push("sell")}>
           <Ionicons name="add-circle-outline" size={40} color="#fff" />
           <Text className="text-white mx-3 font-semibold">Create Ad</Text>
         </TouchableOpacity>

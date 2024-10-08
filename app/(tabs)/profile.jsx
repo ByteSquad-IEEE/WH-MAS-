@@ -25,6 +25,14 @@ const Profile = () => {
 
   const logoutUser = async () => {
     try {
+          setFirstName("");
+          setLastName("");
+          setWalletBalance("");
+          setPhoneNumber("");
+          setEmail("");
+          setAddress("");
+          setCity("");
+          setState("");
       await AsyncStorage.removeItem("userData");
       console.log("User data removed");
       router.push("/login");

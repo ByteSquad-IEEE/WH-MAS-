@@ -1,8 +1,16 @@
 import { Ionicons } from "@expo/vector-icons";
 import BottomSheet, { BottomSheetBackdrop } from "@gorhom/bottom-sheet";
 import { Portal } from "@gorhom/portal";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 import { router } from "expo-router";
-import React, { useCallback, useMemo, useRef } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   FlatList,
   Image,
@@ -14,9 +22,14 @@ import {
 import { useCart } from "../CartContext";
 
 const TopBarBtn = ({ isNotificationShown, style }) => {
-  const { cartItems, cartCount, updateCart } = useCart();
+  const { cartItems, cartCount, updateCart, cartTotal, productIds } = useCart();
+  const [userId, setUserId] = useState(null);
   // ref
   const bottomSheetRef = useRef(null);
+
+  useEffect(() => {
+    updateCart();
+  }, []);
 
   // variables
   const snapPoints = useMemo(() => ["50%", "90%"], []);
@@ -44,13 +57,60 @@ const TopBarBtn = ({ isNotificationShown, style }) => {
       <View style={styles.cartItemInfo}>
         <Text style={styles.cartItemTitle}>{item.name}</Text>
         <Text style={styles.cartItemPrice}>₦{item.price}</Text>
-        <Text style={styles.cartItemQuantity}>Quantity: {item.quantity}</Text>
+        {/* <Text style={styles.cartItemQuantity}>Quantity: {item.quantity}</Text> */}
       </View>
     </View>
   );
 
   const showNotification = () => {
     router.push("notifications");
+  };
+  const getUserData = async () => {
+    try {
+      const userData = await AsyncStorage.getItem("userData");
+      if (userData) {
+        const user = JSON.parse(userData);
+        console.log("User data:", user);
+        return user;
+      } else {
+        console.log("No user data found");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error retrieving user data:", error);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    const checkUserId = async () => {
+      const user = await getUserData();
+      if (user.id) {
+        setUserId(user.id);
+      }
+    };
+
+    checkUserId();
+  }, []);
+
+  const handleCheckOut = async () => {
+    const base_url = "https://whmas-admin.vercel.app";
+    try {
+      const response = await axios.post(`${base_url}/wh-mas/api/checkout`, {
+        amount: cartTotal,
+        user_id: userId,
+        product_list: JSON.stringify(productIds), // This is already a string containing the array
+      });
+      const resData = response.data;
+      const paymentUrl = resData.message.success.payment_link
+
+      const appendLink = `${base_url}${paymentUrl}`
+      console.log("paymentLink:", appendLink);
+
+      console.log("Sent product IDs (string):", productIds); // For debugging
+    } catch (error) {
+      console.error("Error during checkout:", error);
+    }
   };
 
   return (
@@ -90,12 +150,15 @@ const TopBarBtn = ({ isNotificationShown, style }) => {
             <View style={styles.bottomSheetContent}>
               <Text style={styles.bottomSheetTitle}>Your Cart</Text>
               {cartItems.length > 0 ? (
-                <FlatList
-                  data={cartItems}
-                  renderItem={renderCartItem}
-                  keyExtractor={(item) => item.id.toString()}
-                  contentContainerStyle={styles.cartList}
-                />
+                <>
+                  <FlatList
+                    data={cartItems}
+                    renderItem={renderCartItem}
+                    keyExtractor={(item) => item.id.toString()}
+                    contentContainerStyle={styles.cartList}
+                  />
+                  <Text className="font-semibold text-2xl">Total Price: NGN. {cartTotal}</Text>
+                </>
               ) : (
                 <Text style={styles.emptyCartText}>Your cart is empty</Text>
               )}
@@ -103,7 +166,12 @@ const TopBarBtn = ({ isNotificationShown, style }) => {
 
             <View style={styles.checkoutContainer}>
               <TouchableOpacity style={styles.checkoutButton}>
-                <Text style={styles.checkoutButtonText}>Checkout</Text>
+                <Text
+                  style={styles.checkoutButtonText}
+                  onPress={handleCheckOut}
+                >
+                  Checkout
+                </Text>
               </TouchableOpacity>
             </View>
           </View>

@@ -84,17 +84,19 @@ const WasteDetails = () => {
       const existingItemIndex = cart.findIndex((item) => item.id === waste.id);
 
       if (existingItemIndex !== -1) {
+        // If the item is already in the cart, increase the quantity (if needed)
         cart[existingItemIndex].quantity += 1;
       } else {
+        // Add new item without modifying the price (no need to multiply by quantity)
         cart.push({
           ...waste,
           image: image,
-          quantity: 1,
+          quantity: 1, // Default quantity remains 1
         });
       }
 
       await AsyncStorage.setItem("cart", JSON.stringify(cart));
-      updateCart(); // Update the cart context after modifying the cart
+      updateCart();
 
       Toast.show({
         type: "success",

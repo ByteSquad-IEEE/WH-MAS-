@@ -7,7 +7,7 @@ const QuickActions = () => {
   return (
     <View className="mx-4 mt-28 border border-[#D9D9D9] rounded-lg flex flex-row justify-between items-center">
       <View className="p-2">
-        <TouchableOpacity className="flex items-center">
+        <TouchableOpacity className="flex items-center" onPress={() => router.push("/sell")}>
           <View className="bg-[#53e88c42] p-2 rounded-md">
             <Ionicons name="add-circle-outline" size={40} color="#1DB954" />
           </View>

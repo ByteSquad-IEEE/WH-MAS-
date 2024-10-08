@@ -14,6 +14,9 @@ import {
   ActivityIndicator,
   Animated,
   ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -207,7 +210,7 @@ const LoginScreen = () => {
   const checkLoginStatus = async () => {
     if (id) {
       router.push("/dashboard");
-      console.log(id)
+      console.log(id);
     }
   };
 
@@ -220,63 +223,69 @@ const LoginScreen = () => {
   }
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-      onLayout={onLayoutRootView}
-    >
-      <ImageBackground
-        source={require("../assets/authBgPatternImg.png")}
-        style={styles.header}
+    <SafeAreaView>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
+        <ScrollView
+          contentContainerStyle={styles.container}
+          onLayout={onLayoutRootView}
         >
-          <Ionicons name="arrow-back" size={30} color="white" />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>Login</Text>
-        <Text style={styles.subHeaderText}>
-          Welcome Back, Login to access your account
-        </Text>
-      </ImageBackground>
-
-      <View style={styles.form}>
-        <FloatingLabelInput
-          label="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-        />
-
-        <FloatingLabelInput
-          label="Password"
-          value={password}
-          onChangeText={setPassword}
-          keyboardType="default"
-          secureTextEntry={true}
-        />
-
-        {error && <Text style={styles.errorText}>{error}</Text>}
-
-        {loading ? (
-          <ActivityIndicator size="large" color="#00C853" />
-        ) : (
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Next</Text>
-          </TouchableOpacity>
-        )}
-
-        <Text style={styles.footerText}>
-          Don't have an account?{" "}
-          <Text
-            style={styles.linkText}
-            onPress={() => router.push("dashboard")}
+          <ImageBackground
+            source={require("../assets/authBgPatternImg.png")}
+            style={styles.header}
           >
-            Register
-          </Text>
-        </Text>
-      </View>
-    </ScrollView>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => navigation.goBack()}
+            >
+              <Ionicons name="arrow-back" size={30} color="white" />
+            </TouchableOpacity>
+            <Text style={styles.headerText}>Login</Text>
+            <Text style={styles.subHeaderText}>
+              Welcome Back, Login to access your account
+            </Text>
+          </ImageBackground>
+  
+          <View style={styles.form}>
+            <FloatingLabelInput
+              label="Email"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+            />
+  
+            <FloatingLabelInput
+              label="Password"
+              value={password}
+              onChangeText={setPassword}
+              keyboardType="default"
+              secureTextEntry={true}
+            />
+  
+            {error && <Text style={styles.errorText}>{error}</Text>}
+  
+            {loading ? (
+              <ActivityIndicator size="large" color="#00C853" />
+            ) : (
+              <TouchableOpacity style={styles.button} onPress={handleLogin}>
+                <Text style={styles.buttonText}>Next</Text>
+              </TouchableOpacity>
+            )}
+  
+            <Text style={styles.footerText}>
+              Don't have an account?{" "}
+              <Text
+                style={styles.linkText}
+                onPress={() => router.push("register")}
+              >
+                Register
+              </Text>
+            </Text>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
@@ -322,6 +331,10 @@ const styles = StyleSheet.create({
     padding: 20,
     marginHorizontal: 20,
     elevation: 5,
+    shadowColor: "#171717",
+    shadowOffset: { width: -2, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
     width: "90%",
     display: "flex",
     gap: 10,
