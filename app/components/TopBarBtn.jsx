@@ -108,6 +108,9 @@ const TopBarBtn = ({ isNotificationShown, style }) => {
       const fullPaymentLink = `${base_url}${paymentUrl}`;
       console.log("paymentLink:", fullPaymentLink);
 
+      // Close the bottom sheet before navigation
+      bottomSheetRef.current?.close();
+
       router.push({
         pathname: "/paymentwebview",
         params: {
